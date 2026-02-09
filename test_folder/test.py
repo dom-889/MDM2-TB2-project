@@ -1,2 +1,1 @@
-
-print("i hope this works")
+print("this works")
