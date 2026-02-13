@@ -1,0 +1,8 @@
+create a random heterogenious volume to run an art algorithm on using arrays and a nearest neighbour algorithm (or any appropriate grouping algorithm) to create segments of materials
+use a dictionary that corresponds to each of the values (materials) and can be used to check the properties (maybe oop could be better but idk)
+the most useful value will be the attentuation coefficient which will be used during the 'mapping' phase of the model, the attenuation value corresponds to how much energy is lost when travelling through it (i think)
+after this initial set up is done, the mapping phase can begin:
+this involves taking a single array (slice) from the volume and then using this to fire a wave of a known energy from a 'beam emmitter' posittioned at a fixed distance from the centre of the slice through the slice in a fan-like shape at 'detectors' on the opposite side of the 'circle' that the beam emmitter is also located on.
+this process is then repeated as the beam emmitter rotates around the slice and all of the data is mapped and then used to draw a sinograph.
+this is then processed to create a 2d image of the slice
+repeat this process for each slice and then your algorithm is complete
