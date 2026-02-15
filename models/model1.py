@@ -1,7 +1,12 @@
 import numpy as np
 import cv2 as cv
 import matplotlib.pyplot as plt
+from  functions_file import get_runtime
 
+# model 1 uses a ct scan type of method (yet to actually be implemented)
+# but the high-level rundown is this:
+'''get image to reconstruct through webcam or use o
+'''
 
 def video_capture():
 
@@ -49,11 +54,11 @@ def video_capture():
 
 
 
-
+@get_runtime
 def grid_setup():
 
     img = np.array(cv.imread("test_images\\test_image.png"))
-    fan_angle = np.pi()/4
+    fan_angle = np.pi/4
     shape = img.shape
     if shape[0] <= shape[1]:
         ring_rad = (shape[1]*np.tan((np.pi)/2-fan_angle))/2 + shape[0]/2

@@ -1,5 +1,7 @@
 from model1 import grid_setup, video_capture
 
+# main function folder, you should know how these are used
+
 def main():
 
     ipt = input("do you want to take a picture? [y/n] ")
@@ -8,6 +10,7 @@ def main():
 
         if ipt == "y":
             video_capture()
+            grid_setup()
             break
 
         elif ipt == "n":
@@ -17,9 +20,5 @@ def main():
         else:
             ipt = input("incorrect input :( \ndo you want to take a picture? [y/n] ")
         
-    
-
-        
-    
 if __name__ == '__main__':
     main()
