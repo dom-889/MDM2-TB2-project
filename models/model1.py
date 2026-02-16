@@ -134,12 +134,10 @@ def grid_setup(fan_angle, no_beams, ring_subdivisions, show_plot, beam_subdivisi
                 else:
                     for index, dy in enumerate(y_subdivisions):
                         if 0 <= dy < shape[0]:
-
                             if 0 <= x_subdivisions[index] < shape[0]:
                                 atn_coef = img[int(x_subdivisions[index])][int(dy)]
                                 atn_coef_ls.append(atn_coef[colour_channels])
-                            else:
-                                atn_coef_ls.append(255)
+
                 beam_intensities.append(attenuation_calc(atn_coef_ls))
 
             if show_plot:

@@ -16,7 +16,7 @@ def main():
             break
 
         elif ipt == "n":
-            grid_setup(np.pi/4, 1000, 1, show_plot=True, beam_subdivisions=1000)
+            grid_setup(np.pi/4, 1000, 1, show_plot=False, beam_subdivisions=1000)
             break
 
         else:
