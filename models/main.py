@@ -1,5 +1,6 @@
 from model1 import grid_setup, video_capture
 
+
 # main function folder, you should know how these are used
 
 def main():

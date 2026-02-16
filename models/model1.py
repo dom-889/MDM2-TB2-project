@@ -41,7 +41,7 @@ def video_capture():
         elif k%256 == 32:
             # SPACE pressed
             img_name = "test_image.png"
-            cv.imwrite(f"test_images\{img_name}", gray)
+            cv.imwrite(f"test_images/{img_name}", gray)
             print(f"{img_name} written!")
             cv.imshow(f"{img_name}", gray)
             
@@ -63,7 +63,7 @@ def grid_setup(fan_angle, fan_subdivisions, ring_subdivisions):
         ring_rad = (shape[1]*np.tan((np.pi)/2-fan_angle))/2 + shape[0]/2
     elif shape[0] > shape[1]:
         ring_rad = (shape[0]*np.tan((np.pi)/2-fan_angle))/2 + shape[1]/2
-
+    print("Ring radius has been calculated")
 
     if fan_subdivisions > 0:
         if fan_subdivisions == 1:
@@ -83,5 +83,6 @@ def grid_setup(fan_angle, fan_subdivisions, ring_subdivisions):
                     fan_sd_ls.insert(0,-angle)
             fan_sd_ls.insert(0,-fan_angle/2)
             fan_sd_ls.append(fan_angle/2)
-    print(fan_sd_ls)
-    '''for i in range(ring_subdivisions):'''
+    print("Fan angle list has been completed")
+    for i in range(ring_subdivisions):
+        

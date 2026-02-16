@@ -6,3 +6,4 @@ https://www.cockcroft.ac.uk/wp-content/uploads/2016/04/CT-Iterative_Reconstructi
 
 https://www.youtube.com/playlist?list=PLmecqweSELQOXRtaLhvvN63U73f0sc5xr - youtube playlist on algebraic reconstruction
 https://www.youtube.com/playlist?list=PLWfaNqiSdtzW_muHrCkwJm9FyovAue-jN - youtube playlist on ct physics (could be useful)
+https://en.wikipedia.org/wiki/Attenuation_coefficient - attenuation wiki page
