@@ -13,9 +13,3 @@ def get_runtime(func):
 # in this case its a simple runtime function as it gets the time before the function runs
 # then it runs the function and prints the runtime after
 # idk what else they could be used for in this case but this one will be useful for optimising based off computation time
-
-@get_runtime
-def timer():
-    time.sleep(5)
-
-timer()

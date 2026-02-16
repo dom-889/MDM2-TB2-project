@@ -9,3 +9,5 @@ with open('environment.csv', 'r') as file:
     for lines in csvFile:
             for i in lines:
                 subprocess.check_call([sys.executable, '-m', 'pip', 'install', f'{i}'])
+
+print("packages are installed, now you can run the models :D")

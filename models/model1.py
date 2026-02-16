@@ -4,16 +4,14 @@ import matplotlib.pyplot as plt
 from  functions_file import get_runtime
 
 # model 1 uses a ct scan type of method (yet to actually be implemented)
-# but the high-level rundown is this:
-'''get image to reconstruct through webcam or use o
-'''
+# but the high-level rundown is this: bro really forgot to give an explaination (its in the code so it should be fine)
 
 def video_capture():
 
     # opens video feed and then can be used to take an image for testing using SPACE
     # might want to change the gray varaible when we get aroudn to actually processing more complex data
 
-    cap = cv.VideoCapture(0)
+    cap = cv.VideoCapture(1)
     cv.namedWindow('test')
 
     if not cap.isOpened():
