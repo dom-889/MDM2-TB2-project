@@ -10,7 +10,6 @@ def main():
 
         if ipt == "y":
             video_capture()
-            grid_setup()
             break
 
         elif ipt == "n":

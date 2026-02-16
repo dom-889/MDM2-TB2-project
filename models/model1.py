@@ -55,7 +55,8 @@ def video_capture():
 
 
 @get_runtime
-def grid_setup():
+def grid_setup(fan_angle, fan_subdivisions, ring_subdivisions):
+    fan_sd_ls = []
 
     img = np.array(cv.imread("test_images\\test_image.png"))
     fan_angle = np.pi/4
@@ -64,4 +65,25 @@ def grid_setup():
         ring_rad = (shape[1]*np.tan((np.pi)/2-fan_angle))/2 + shape[0]/2
     elif shape[0] > shape[1]:
         ring_rad = (shape[0]*np.tan((np.pi)/2-fan_angle))/2 + shape[1]/2
-    
+
+
+    if fan_subdivisions > 0:
+        if fan_subdivisions == 1:
+            fan_sd_ls.append(0)
+        elif fan_subdivisions - 2 >= 0:
+            if fan_subdivisions % 2 != 0:
+                fan_sd_ls.append(0)
+            if fan_subdivisions % 2 != 0:
+                for i in range(2,fan_subdivisions-1,2):
+                    angle = fan_angle*(i)/((fan_subdivisions-1)*2)
+                    fan_sd_ls.append(angle)
+                    fan_sd_ls.insert(0,-angle)
+            else:        
+                for i in range(2,fan_subdivisions-1,2):
+                    angle = fan_angle*(i)/((fan_subdivisions)*2)
+                    fan_sd_ls.append(angle)
+                    fan_sd_ls.insert(0,-angle)
+            fan_sd_ls.insert(0,-fan_angle/2)
+            fan_sd_ls.append(fan_angle/2)
+    print(fan_sd_ls)
+    '''for i in range(ring_subdivisions):'''
