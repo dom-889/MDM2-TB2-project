@@ -1,7 +1,8 @@
 from model1 import grid_setup, video_capture
+import numpy as np
 
 
-# main function folder, you should know how these are used
+# main function, you should know how these are used (i think)
 
 def main():
 
@@ -11,10 +12,11 @@ def main():
 
         if ipt == "y":
             video_capture()
+            grid_setup(np.pi/4, 100, 500, False)
             break
 
         elif ipt == "n":
-            grid_setup()
+            grid_setup(np.pi/4, 10, 20, show_plot=True)
             break
 
         else:
