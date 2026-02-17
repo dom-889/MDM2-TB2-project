@@ -11,7 +11,7 @@ import numpy as np
 a = 0.2
 b = 0.4
 c = 0.6
-d = 0.8
+d = 0.9
 
 possible_values = [a, b, c, d]
 letters = ['a', 'b', 'c', 'd']
