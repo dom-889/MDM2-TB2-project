@@ -1,8 +1,8 @@
 '''
 Some code for the fundamental maths Tony was on about on Monday
-Takes the product of each row and  column, then logs it, eg. log(a) + log(b) = log(Product of first row)
-This then gives you a system of equations (4 equations, 4 unknowns), although coeff matrix is singular so can't be inversed
-Use some teccy python func to get a pseudo-inverse, which gives a "good enough" inverse A to solve system of equations
+Takes the product of each row, column and diagonal, then logs it, eg. log(a) + log(b) = log(Product of first row)
+This then gives you a system of equations (6 equations, 4 unknowns), although coeff matrix isn't square so can't be inversed
+Use some teccy python function to get a pseudo-inverse, which gives a "good enough" inverse A to solve system of equations
 '''
 
 import numpy as np
@@ -11,7 +11,7 @@ import numpy as np
 a = 0.2
 b = 0.4
 c = 0.6
-d = 0.9
+d = 0.8
 
 possible_values = [a, b, c, d]
 letters = ['a', 'b', 'c', 'd']
@@ -24,10 +24,12 @@ matrix = np.array([[a, b],
 A = np.array([[1, 1, 0, 0],
               [0, 0, 1, 1],
               [1, 0, 1, 0],
-              [0, 1, 0, 1]])
+              [0, 1, 0, 1],
+              [1, 0, 0, 1],
+              [0, 1, 1, 0]])
 
 #Products of rows and columns logged
-b = np.array([np.log(matrix[0][0] * matrix[0][1]), np.log(matrix[1][0] * matrix[1][1]), np.log(matrix[0][0] * matrix[1][0]), np.log(matrix[0][1] * matrix[1][1])])
+b = np.array([np.log(matrix[0][0] * matrix[0][1]), np.log(matrix[1][0] * matrix[1][1]), np.log(matrix[0][0] * matrix[1][0]), np.log(matrix[0][1] * matrix[1][1]), np.log(matrix[0][0] * matrix[1][1]), np.log(matrix[0][1] * matrix[1][0])])
 
 #A is singular so can't be inverted, use a pseudo-inverse instead
 #Not great but good enough. Isn't always accurate
