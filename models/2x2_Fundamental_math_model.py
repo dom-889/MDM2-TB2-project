@@ -29,7 +29,14 @@ A = np.array([[1, 1, 0, 0],
               [0, 1, 1, 0]])
 
 #Products of rows and columns logged
-b = np.array([np.log(matrix[0][0] * matrix[0][1]), np.log(matrix[1][0] * matrix[1][1]), np.log(matrix[0][0] * matrix[1][0]), np.log(matrix[0][1] * matrix[1][1]), np.log(matrix[0][0] * matrix[1][1]), np.log(matrix[0][1] * matrix[1][0])])
+beta = np.zeros(A.shape[0])
+for row in range(A.shape[0]):
+    product  = 0
+    for col in range(A.shape[1]):
+        if A[row][col] == 1:
+            product += np.log(matrix.flatten()[col])
+
+    beta[row] = product
 
 #A is singular so can't be inverted, use a pseudo-inverse instead
 #Not great but good enough. Isn't always accurate
@@ -51,4 +58,4 @@ rounded_letters = np.array([value_to_letter(val, possible_values, letters) for v
 
 print("Log values of a1, a2, b1, b2:", x)
 print("Values of a1, a2, b1, b2:", solutions)
-print("Projection:", rounded_letters.reshape(2, 2))
+print("Projection:", rounded_letters.reshape(matrix.shape))
