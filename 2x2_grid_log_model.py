@@ -1,3 +1,10 @@
+'''
+Some code for the fundamental maths Tony was on about on Monday
+Takes the product of each row and  column, then logs it, eg. log(a) + log(b) = log(Product of first row)
+This then gives you a system of equations (4 equations, 4 unknowns), although coeff matrix is singular so can't be inversed
+Use some teccy python func to get a pseudo-inverse, which gives an approximation of solution
+'''
+
 import numpy as np
 
 #Changeable values how much "energy" each "pixel" on the body has
@@ -10,7 +17,7 @@ possible_values = [a, b, c, d]
 letters = ['a', 'b', 'c', 'd']
 
 #Very basic model of body with 4 pixels, can be changed around for model to guess any combination
-matrix = np.array([[a, d],
+matrix = np.array([[a, b],
                    [c, d]])
 
 #Matrix of coefficients
@@ -38,8 +45,8 @@ def value_to_letter(value, possible_values, letters):
     closest_value = round_to_closest(value, possible_values)
     return letters[possible_values.index(closest_value)]
 
-rounded_letters = [value_to_letter(val, possible_values, letters) for val in solutions]
+rounded_letters = np.array([value_to_letter(val, possible_values, letters) for val in solutions])
 
 print("Log values of a1, a2, b1, b2:", x)
 print("Values of a1, a2, b1, b2:", solutions)
-print("Rounded values:", rounded_letters)
+print("Projection:", rounded_letters.reshape(2, 2))
