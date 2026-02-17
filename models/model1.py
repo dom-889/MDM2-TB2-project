@@ -96,7 +96,7 @@ def grid_setup(fan_angle, no_beams, ring_subdivisions, show_plot, beam_subdivisi
     # ring radius calculation
     
     fix, ax = plt.subplots(1,2,figsize=(9,4))
-
+    beam_intensities = []
     for i in range(ring_subdivisions):
 
         def attenuation_calc(ls):
@@ -119,7 +119,7 @@ def grid_setup(fan_angle, no_beams, ring_subdivisions, show_plot, beam_subdivisi
             end_pos_ls.append(end_pos)
 
         for colour in range(colour_channels):
-            beam_intensities = []
+            
             for ii in end_pos_ls:
                 atn_coef_ls = []
                 x_subdivisions = np.trunc(np.linspace(start_pos[0], ii[0], beam_subdivisions))
@@ -130,7 +130,7 @@ def grid_setup(fan_angle, no_beams, ring_subdivisions, show_plot, beam_subdivisi
                         if 0 <= dx < shape[1]:
                             if 0 <= y_subdivisions[index] < shape[0]:
                                 atn_coef = img[int(y_subdivisions[index])][int(dx)]
-                                atn_coef_ls.append(atn_coef[colour_channels])
+                                atn_coef_ls.append(atn_coef[colour])
                             else:
                                 atn_coef_ls.append(np.nan)
                         else:
@@ -140,36 +140,24 @@ def grid_setup(fan_angle, no_beams, ring_subdivisions, show_plot, beam_subdivisi
                         if 0 <= dy < shape[0]:
                             if 0 <= x_subdivisions[index] < shape[0]:
                                 atn_coef = img[int(x_subdivisions[index])][int(dy)]
-                                atn_coef_ls.append(atn_coef[colour_channels])
+                                atn_coef_ls.append(atn_coef[colour])
                             else:
                                 atn_coef_ls.append(np.nan)
                         else:
                                 atn_coef_ls.append(np.nan)
 
                 beam_intensities.append(attenuation_calc(atn_coef_ls))
-
-            if show_plot:
+            
+            
+                
+            '''if show_plot:
                 x_vals = []; y_vals = []
                 for idx, intensity in enumerate(beam_intensities):
                     x_vals.append(idx)
                     y_vals.append(intensity)
                 ax[1].set_ylim(0,1)
-                ax[1].plot(x_vals, y_vals)
-
-                    
-
-
-
-            
-            
-
-
-
-
-            
-            
-
-
+                ax[1].plot(x_vals, y_vals)'''
+                
 
         if show_plot:
             for ii in end_pos_ls:
@@ -183,5 +171,7 @@ def grid_setup(fan_angle, no_beams, ring_subdivisions, show_plot, beam_subdivisi
             ax[0].imshow(img)
         print(f"Beam vector calculations in progress [{i+1} of {ring_subdivisions} complete]")
     print("Beam vector calculations complete")
+    beam_intensities = np.reshape(beam_intensities,(ring_subdivisions, no_beams))
+    ax[1].imshow(beam_intensities, cmap='gray')
     if show_plot:
         plt.show()
