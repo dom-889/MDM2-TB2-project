@@ -2,7 +2,7 @@
 Some code for the fundamental maths Tony was on about on Monday
 Takes the product of each row and  column, then logs it, eg. log(a) + log(b) = log(Product of first row)
 This then gives you a system of equations (4 equations, 4 unknowns), although coeff matrix is singular so can't be inversed
-Use some teccy python func to get a pseudo-inverse, which gives an approximation of solution
+Use some teccy python func to get a pseudo-inverse, which gives a "good enough" inverse A to solve system of equations
 '''
 
 import numpy as np
