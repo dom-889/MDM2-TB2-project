@@ -1,11 +1,10 @@
 from model1 import grid_setup, video_capture
 import numpy as np
-
+import csv
 
 # main function, you should know how these are used (i think)
 
 def main():
-
     ipt = input("do you want to take a picture? [y/n] ")
 
     while True:
@@ -16,7 +15,7 @@ def main():
             break
 
         elif ipt == "n":
-            grid_setup(np.pi/4, 1000, 1, show_plot=False, beam_subdivisions=1000)
+            grid_setup(np.pi/4, 1000, 1, show_plot=True, beam_subdivisions=1000)
             break
 
         else:

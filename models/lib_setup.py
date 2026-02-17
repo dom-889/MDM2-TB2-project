@@ -3,11 +3,8 @@ import subprocess
 import csv
 
 # make sure you run this before you try using any of the code cause you want to make sure you have all of the modules
-
-with open('environment.csv', 'r') as file:
+with open('models/environment.csv', 'r') as file:
     csvFile = csv.reader(file)
     for lines in csvFile:
             for i in lines:
                 subprocess.check_call([sys.executable, '-m', 'pip', 'install', f'{i}'])
-
-print("packages are installed, now you can run the models :D")

@@ -55,9 +55,8 @@ def video_capture():
 @get_runtime
 def grid_setup(fan_angle, no_beams, ring_subdivisions, show_plot, beam_subdivisions):
     beam_angle_ls = []
-    ring_dict = {}
+    img = np.flipud(np.array(cv.imread("test_images/test_image.png"))) # change the string here to the image you want to use
 
-    img = np.flipud(np.array(cv.imread("test_images/test_image.png")))
     fan_angle = np.pi/4
     shape = img.shape
     midpoint = np.flip(np.array([k/2 for k in shape[:2]]))
@@ -86,6 +85,8 @@ def grid_setup(fan_angle, no_beams, ring_subdivisions, show_plot, beam_subdivisi
             beam_angle_ls.append(fan_angle/2)
     print("Fan angle list has been completed")
     # calculates angles for specified fan angle and number of beams and appends them to a list
+    # highkey might end myself cause linspace exists although i will test speeds
+    # this is actually faster when no of beams is < 2000 so it fits our usecase (i am better than numpy (massive lie))
 
     if shape[0] <= shape[1]:
         ring_rad = (shape[1]*np.tan((np.pi)/2-fan_angle))/2 + shape[0]/2
@@ -100,12 +101,11 @@ def grid_setup(fan_angle, no_beams, ring_subdivisions, show_plot, beam_subdivisi
 
         def attenuation_calc(ls):
             ls = np.array(ls)
-            print(ls)
             if len(ls) == 0:
                 return 1
             else:
-                return np.mean(ls)/255
-
+                return np.nanmean(ls)/255
+        # i think this works for calculating the mean values
 
         x_pos = []
         y_pos = []
@@ -131,12 +131,20 @@ def grid_setup(fan_angle, no_beams, ring_subdivisions, show_plot, beam_subdivisi
                             if 0 <= y_subdivisions[index] < shape[0]:
                                 atn_coef = img[int(y_subdivisions[index])][int(dx)]
                                 atn_coef_ls.append(atn_coef[colour_channels])
+                            else:
+                                atn_coef_ls.append(np.nan)
+                        else:
+                                atn_coef_ls.append(np.nan)
                 else:
                     for index, dy in enumerate(y_subdivisions):
                         if 0 <= dy < shape[0]:
                             if 0 <= x_subdivisions[index] < shape[0]:
                                 atn_coef = img[int(x_subdivisions[index])][int(dy)]
                                 atn_coef_ls.append(atn_coef[colour_channels])
+                            else:
+                                atn_coef_ls.append(np.nan)
+                        else:
+                                atn_coef_ls.append(np.nan)
 
                 beam_intensities.append(attenuation_calc(atn_coef_ls))
 
@@ -145,6 +153,7 @@ def grid_setup(fan_angle, no_beams, ring_subdivisions, show_plot, beam_subdivisi
                 for idx, intensity in enumerate(beam_intensities):
                     x_vals.append(idx)
                     y_vals.append(intensity)
+                ax[1].set_ylim(0,1)
                 ax[1].plot(x_vals, y_vals)
 
                     
