@@ -53,15 +53,23 @@ def video_capture():
 
 
 @get_runtime
-def grid_setup(fan_angle, no_beams, ring_subdivisions, show_plot, beam_subdivisions):
+def grid_setup(fan_angle, no_beams, ring_subdivisions, beam_subdivisions, image_string, show_plot):
     beam_angle_ls = []
-    img = np.flipud(np.array(cv.imread("test_images/test_image.png"))) # change the string here to the image you want to use
+    image_path = f"test_images/{image_string}"
+    img = np.flipud(np.array(cv.cvtColor(cv.imread(image_path), cv.COLOR_RGB2BGR))) # change the string here to the image you want to use
 
     fan_angle = np.pi/4
     shape = img.shape
     midpoint = np.flip(np.array([k/2 for k in shape[:2]]))
     colour_channels = 1
     
+    def attenuation_calc(ls):
+            ls = np.array(ls)
+            if len(ls) == 0:
+                return 1
+            else:
+                #return np.nanprod(ls/255)
+                return np.log10(np.nanprod(ls/255))
 
     # general varable/list/dict setup yk how it be
 
@@ -95,16 +103,11 @@ def grid_setup(fan_angle, no_beams, ring_subdivisions, show_plot, beam_subdivisi
     print("Ring radius has been calculated")
     # ring radius calculation
     
-    fix, ax = plt.subplots(1,2,figsize=(9,4))
+    fig, ax = plt.subplots(1,2,figsize=(9,4))
     beam_intensities = []
     for i in range(ring_subdivisions):
 
-        def attenuation_calc(ls):
-            ls = np.array(ls)
-            if len(ls) == 0:
-                return 1
-            else:
-                return np.nanmean(ls)/255
+        
         # i think this works for calculating the mean values
 
         x_pos = []
@@ -162,18 +165,22 @@ def grid_setup(fan_angle, no_beams, ring_subdivisions, show_plot, beam_subdivisi
                 
 
         if show_plot:
-            for ii in end_pos_ls:
+            '''for ii in end_pos_ls:
                 x_pos.append(ii[0])
                 y_pos.append(ii[1])
-            ax[0].set_ylim((midpoint[1]-2*ring_rad), (midpoint[1]+2*ring_rad))
-            ax[0].set_xlim((midpoint[0]-2*ring_rad), (midpoint[0]+2*ring_rad))
+            ax[0].set_ylim((midpoint[1]-ring_rad), (midpoint[1]+ring_rad))
+            ax[0].set_xlim((midpoint[0]-ring_rad), (midpoint[0]+ring_rad))
             ax[0].plot(x_pos, y_pos)
             ax[0].plot(midpoint[0], midpoint[1])
-            ax[0].plot(start_pos[0], start_pos[1])
-            ax[0].imshow(img)
+            ax[0].plot(start_pos[0], start_pos[1])'''
+            ax[0].imshow(np.flipud(img))
+            ax[0].axis('off')
+            ax[0].set_title('Input image')
         print(f"Beam vector calculations in progress [{i+1} of {ring_subdivisions} complete]")
     print("Beam vector calculations complete")
     beam_intensities = np.reshape(beam_intensities,(ring_subdivisions, no_beams))
     ax[1].imshow(beam_intensities, cmap='gray')
+    ax[1].axis('off')
+    ax[1].set_title(f"Sinogram produced from image")
     if show_plot:
         plt.show()

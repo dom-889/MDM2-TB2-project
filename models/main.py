@@ -1,6 +1,7 @@
 from model1 import grid_setup, video_capture
 import numpy as np
-import csv
+from pick import pick
+import os
 
 # main function, you should know how these are used (i think)
 
@@ -11,11 +12,14 @@ def main():
 
         if ipt == "y":
             video_capture()
-            grid_setup(np.pi/4, 200, 500, show_plot=True, beam_subdivisions=1000)
+            grid_setup(fan_angle=np.pi/4, no_beams=50, ring_subdivisions=100, beam_subdivisions=100, image_string="test_image.png",show_plot=True)
             break
 
         elif ipt == "n":
-            grid_setup(np.pi/4, 200, 500, show_plot=True, beam_subdivisions=100)
+            options = [i for i in os.listdir(f"{os.getcwd()}/test_images")]
+            selected = pick(options, title="Choose an image to reconstruct")
+            print(f'You selected: {selected[0]}, reconstructing now...')
+            grid_setup(fan_angle=np.pi/4, no_beams=500, ring_subdivisions=500, beam_subdivisions=1000, image_string=selected[0],show_plot=True)
             break
 
         else:
