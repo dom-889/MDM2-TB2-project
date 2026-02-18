@@ -129,27 +129,15 @@ def grid_setup(fan_angle, no_beams, ring_subdivisions, beam_subdivisions, image_
                 atn_coef_ls = []
                 x_subdivisions = np.trunc(np.linspace(start_pos[0], ii[0], beam_subdivisions))
                 y_subdivisions = np.trunc(np.linspace(start_pos[1], ii[1], beam_subdivisions))
-                if shape[0] > shape[1]:
-                    # trunc used here cause all the pixel positions are integer values
-                 for index, dx in enumerate(x_subdivisions):
-                        if 0 <= dx < shape[1]:
-                            if 0 <= y_subdivisions[index] < shape[0]:
-                                atn_coef = img[int(y_subdivisions[index])][int(dx)]
-                                atn_coef_ls.append(atn_coef[colour])
-                            else:
-                                atn_coef_ls.append(np.nan)
-                        else:
-                                atn_coef_ls.append(np.nan)
-                else:
-                    for index, dy in enumerate(y_subdivisions):
-                        if 0 <= dy < shape[0]:
-                            if 0 <= x_subdivisions[index] < shape[0]:
-                                atn_coef = img[int(x_subdivisions[index])][int(dy)]
-                                atn_coef_ls.append(atn_coef[colour])
-                            else:
-                                atn_coef_ls.append(np.nan)
-                        else:
-                                atn_coef_ls.append(np.nan)
+                # trunc used here cause all the pixel positions are integer values
+
+                for dx, dy in zip(x_subdivisions, y_subdivisions):
+                    if 0 <= (dx and dy) and dx < shape[1] and dy < shape[0]:
+                        atn_coef = img[int(dy)][int(dx)]
+                        atn_coef_ls.append(atn_coef[colour])
+                    else:
+                        atn_coef_ls.append(np.nan)
+                # man i love it when i forget about a super useful function (zip)
                 # use of nan here cause it retains index info and can be ignored by using some functions
                 beam_intensities.append(attenuation_calc(atn_coef_ls))
             

@@ -1,8 +1,7 @@
-from pick import pick
-import os
-import subprocess
+import numpy as np
 
-
-options = [i for i in os.listdir(f"{os.getcwd()}/test_images")]
-selected = pick(options, title="Choose an option")
-print(f'You selected: {selected[0]}')
+x = np.linspace(12, 134, 10)
+y = np.linspace(10, 123, 10)
+print(f"{x}\n{y}")
+for a, b in zip(x, y):
+    print(a, b)
