@@ -2,7 +2,8 @@
 square of size N x N coefficients matrix
 '''
 import numpy as np
-n = 4
+import random
+n = 6
 
 #Changeable values how much "energy" each "pixel" on the body has
 a = 0.1
@@ -18,11 +19,9 @@ i = 0.9
 possible_values = [a, b, c, d, e, f, g, h, i]
 letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']
 
-#Very basic model of body with 9 pixels, can be changed around for model to guess any combination
-matrix = np.array([[i, d, e, f],
-                   [d, b, g, a],
-                   [g, h, a, e],
-                   [f, a, e, c]])
+matrix = np.array(random.choices(possible_values, k=n**2)).reshape((n,n))
+print('Original matrix:')
+print(matrix)
 
 #Make a diagonal of 1s for each diagonal
 def create_para_diag_matrix(n, offset):
@@ -82,6 +81,9 @@ def value_to_letter(value, possible_values, letters):
 
 rounded_letters = np.array([value_to_letter(val, possible_values, letters) for val in solutions])
 
-print("Log values:", x.reshape(matrix.shape))
-print("Values:", solutions.reshape(matrix.shape))
-print("Projection:", rounded_letters.reshape(matrix.shape))
+print("Log values:")
+print(x.reshape(matrix.shape))
+print("Values:")
+print(solutions.reshape(matrix.shape))
+print("Projection:")
+print(rounded_letters.reshape(matrix.shape))
