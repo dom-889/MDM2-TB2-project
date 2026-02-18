@@ -117,16 +117,18 @@ def grid_setup(fan_angle, no_beams, ring_subdivisions, show_plot, beam_subdivisi
             end_pos = start_pos - np.array([2*ring_rad*np.cos(angle-j), 2*ring_rad*np.sin(angle-j)])
             #print(f"{end_pos} = {start_pos} - {np.array([2*ring_rad*np.cos(angle-j), 2*ring_rad*np.sin(angle-j)])}")
             end_pos_ls.append(end_pos)
-
+            # this bit calculates the end positions of each of the beams being fired in the 'fan'
         for colour in range(colour_channels):
-            
+
+            # i think this needs to be moved out to a different point or turn this next bit and stuff to functions cause this doesnt actually run properly and the value in the attenuation calc shouldnt be a fixed value
+
             for ii in end_pos_ls:
                 atn_coef_ls = []
                 x_subdivisions = np.trunc(np.linspace(start_pos[0], ii[0], beam_subdivisions))
                 y_subdivisions = np.trunc(np.linspace(start_pos[1], ii[1], beam_subdivisions))
                 if shape[0] > shape[1]:
-
-                    for index, dx in enumerate(x_subdivisions):
+                    # trunc used here cause all the pixel positions are integer values
+                 for index, dx in enumerate(x_subdivisions):
                         if 0 <= dx < shape[1]:
                             if 0 <= y_subdivisions[index] < shape[0]:
                                 atn_coef = img[int(y_subdivisions[index])][int(dx)]
@@ -145,7 +147,7 @@ def grid_setup(fan_angle, no_beams, ring_subdivisions, show_plot, beam_subdivisi
                                 atn_coef_ls.append(np.nan)
                         else:
                                 atn_coef_ls.append(np.nan)
-
+                # use of nan here cause it retains index info and can be ignored by using some functions
                 beam_intensities.append(attenuation_calc(atn_coef_ls))
             
             
