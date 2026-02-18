@@ -11,7 +11,7 @@ def main():
 
         if ipt == "y":
             video_capture()
-            grid_setup(np.pi/4, 1000, 1, show_plot=True, beam_subdivisions=1000)
+            grid_setup(np.pi/4, 200, 500, show_plot=True, beam_subdivisions=1000)
             break
 
         elif ipt == "n":
