@@ -1,7 +1,7 @@
-import numpy as np
-
-x = np.linspace(12, 134, 10)
-y = np.linspace(10, 123, 10)
-print(f"{x}\n{y}")
-for a, b in zip(x, y):
-    print(a, b)
+x = 10
+y = 2000
+ub = 2001
+if 0 <= (x and y) and (x < ub and y < ub):
+    print(f"{x} and {y} are both positive and less than {ub}")
+else:
+    print(f"kys")

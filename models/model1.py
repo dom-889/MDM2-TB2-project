@@ -132,9 +132,8 @@ def grid_setup(fan_angle, no_beams, ring_subdivisions, beam_subdivisions, image_
                 # trunc used here cause all the pixel positions are integer values
 
                 for dx, dy in zip(x_subdivisions, y_subdivisions):
-                    if 0 <= (dx and dy) and dx < shape[1] and dy < shape[0]:
-                        atn_coef = img[int(dy)][int(dx)]
-                        atn_coef_ls.append(atn_coef[colour])
+                    if 0 <= dx < img.shape[1] and 0 <= dy < img.shape[0]:
+                        atn_coef_ls.append(img[int(dy), int(dx), colour])
                     else:
                         atn_coef_ls.append(np.nan)
                 # man i love it when i forget about a super useful function (zip)

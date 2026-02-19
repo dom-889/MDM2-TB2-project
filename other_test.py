@@ -1,7 +1,7 @@
 import numpy as np
 from models.functions_file import get_runtime
 beam_angle_ls = []
-no_beams = 2230
+no_beams = 2000
 fan_angle = 30
 @get_runtime
 def linspace_fuck_you():
