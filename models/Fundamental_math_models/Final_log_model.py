@@ -3,7 +3,7 @@ square of size N x N coefficients matrix
 '''
 import numpy as np
 import random
-n = 5
+n = 4
 
 #Changeable values how much "energy" each "pixel" on the body has
 a = 0.1
@@ -20,13 +20,14 @@ possible_values = [a, b, c, d, e, f, g, h, i]
 letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']
 
 matrix = np.array(random.choices(possible_values, k=n**2)).reshape((n,n))
-'''
-matrix = np.array([[a, a, i, a, a],
-                   [a, a, i, a, a],
-                   [a, a, i, a, a],
-                   [a, a, i, a, a],
-                   [a, a, i, a, i]])
-'''
+"""
+matrix = np.array([[a, a, a, a, a, a],
+                   [a, d, d, a, a, a],
+                   [a, d, d, a, a, a],
+                   [a, a, a, a, a, a],
+                   [a, a, a, a, g, g],
+                   [a, a, a, a, g, g]])
+"""
 print('Input body:')
 print(matrix)
 
