@@ -1,7 +1,7 @@
 import numpy as np
 import cv2 as cv
 import matplotlib.pyplot as plt
-from  functions_file import get_runtime
+from functions_file import get_runtime
 
 # model 1 uses a ct scan type of method (yet to actually be implemented)
 # but the high-level rundown is this: bro really forgot to give an explaination (its in the code so it should be fine)
@@ -132,7 +132,9 @@ def grid_setup(fan_angle, no_beams, ring_subdivisions, beam_subdivisions, image_
                 # trunc used here cause all the pixel positions are integer values
 
                 for dx, dy in zip(x_subdivisions, y_subdivisions):
-                    if 0 <= (dx and dy) and dx < shape[1] and dy < shape[0]:
+                    '''print(shape[0], dy)
+                    print(shape[1], dy)'''
+                    if 0 <= dx and 0 <= dy and dx < shape[1] and dy < shape[0]:
                         atn_coef = img[int(dy)][int(dx)]
                         atn_coef_ls.append(atn_coef[colour])
                     else:
@@ -141,8 +143,6 @@ def grid_setup(fan_angle, no_beams, ring_subdivisions, beam_subdivisions, image_
                 # use of nan here cause it retains index info and can be ignored by using some functions
                 beam_intensities.append(attenuation_calc(atn_coef_ls))
             
-            
-                
             '''if show_plot:
                 x_vals = []; y_vals = []
                 for idx, intensity in enumerate(beam_intensities):
