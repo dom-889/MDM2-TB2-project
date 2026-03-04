@@ -3,7 +3,7 @@ square of size N x N coefficients matrix
 '''
 import numpy as np
 import random
-n = 6
+n = 4
 
 #Changeable values how much "energy" each "pixel" on the body has
 a = 0.1
@@ -20,7 +20,15 @@ possible_values = [a, b, c, d, e, f, g, h, i]
 letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']
 
 matrix = np.array(random.choices(possible_values, k=n**2)).reshape((n,n))
-print('Original matrix:')
+"""
+matrix = np.array([[a, a, a, a, a, a],
+                   [a, d, d, a, a, a],
+                   [a, d, d, a, a, a],
+                   [a, a, a, a, a, a],
+                   [a, a, a, a, g, g],
+                   [a, a, a, a, g, g]])
+"""
+print('Input body:')
 print(matrix)
 
 #Make a diagonal of 1s for each diagonal
@@ -35,7 +43,7 @@ def create_para_diag_matrix(n, offset):
     return matrix  
 
 def create_nxn_coeff_matrix(n):
-    A = np.zeros((6*n - 6, n**2))
+    A = np.zeros((6*n - 2, n**2))
     #rows
     for i in range(n):
         for j in range(n):
@@ -45,11 +53,11 @@ def create_nxn_coeff_matrix(n):
         for j in range(n):
             A[n + j][i*n + j] = 1
     #Top left to bottom right diagonals
-    for j in range(-n + 2, n-1):
-        A[3*n + j-2] = create_para_diag_matrix(n, j).flatten()
+    for j in range(-n + 1, n):
+        A[3*n + j-1] = create_para_diag_matrix(n, j).flatten()
     #Top right to bottom left diagonals
-    for i in range(-n + 2, n-1):
-        A[5*n -5 + i] = np.fliplr(create_para_diag_matrix(n, i)).flatten()
+    for i in range(-n + 1, n):
+        A[5*n -2 + i] = np.fliplr(create_para_diag_matrix(n, i)).flatten()
     
     return A
 A = create_nxn_coeff_matrix(n)
@@ -79,11 +87,14 @@ def value_to_letter(value, possible_values, letters):
     closest_value = round_to_closest(value, possible_values)
     return letters[possible_values.index(closest_value)]
 
+rounded_values = np.array([round_to_closest(val, possible_values) for val in solutions])
 rounded_letters = np.array([value_to_letter(val, possible_values, letters) for val in solutions])
 
-print("Log values:")
-print(x.reshape(matrix.shape))
+#print("Log values:")
+#print(x.reshape(matrix.shape))
 print("Values:")
 print(solutions.reshape(matrix.shape))
+print("Rounded values:")
+print(rounded_values.reshape(matrix.shape))
 print("Projection:")
 print(rounded_letters.reshape(matrix.shape))

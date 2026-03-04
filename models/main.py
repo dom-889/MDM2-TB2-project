@@ -19,7 +19,7 @@ def main():
             options = [i for i in os.listdir(f"{os.getcwd()}/test_images")]
             selected = pick(options, title="Choose an image to reconstruct")
             print(f'You selected: {selected[0]}, reconstructing now...')
-            grid_setup(fan_angle=np.pi/4, no_beams=200, ring_subdivisions=200, beam_subdivisions=1000, image_string=selected[0],show_plot=True)
+            grid_setup(fan_angle=np.pi/4, no_beams=100, ring_subdivisions=200, beam_subdivisions=10, image_string=selected[0],show_plot=True)
             break
 
         else:
