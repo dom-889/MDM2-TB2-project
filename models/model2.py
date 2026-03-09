@@ -77,44 +77,86 @@ def video_capture():
 # then do back proj (most of the stuff that it needs should be sorted by the time the ART and fan model are fixed up)
 
 
-def beam_setup(type, img, fan_angle, no_beams, no_permutations):
+def fan_setup(fan_angle, no_beams):
 
+    beam_angle_ls = []
+    fan_angle = np.pi/4
+
+    if no_beams > 0:
+        if no_beams == 1:
+            beam_angle_ls.append(0)
+        elif no_beams - 2 >= 0:
+            if no_beams % 2 != 0:
+                beam_angle_ls.append(0)
+            if no_beams % 2 != 0:
+                for i in range(2,no_beams-1,2):
+                    angle = fan_angle*(i)/((no_beams-1)*2)
+                    beam_angle_ls.append(angle)
+                    beam_angle_ls.insert(0,-angle)
+            else:        
+                for i in range(2,no_beams-1,2):
+                    angle = fan_angle*(i)/((no_beams)*2)
+                    beam_angle_ls.append(angle)
+                    beam_angle_ls.insert(0,-angle)
+            beam_angle_ls.insert(0,-fan_angle/2)
+            beam_angle_ls.append(fan_angle/2)
+    print("Fan angle list has been completed")
+    return beam_angle_ls
+
+def ring_thing(fan_list, ring_subdivisions, beam_subdivisions, aperture, image_string):
+    image_path = f"test_images/{image_string}"
+    img = np.flipud(np.array(cv.cvtColor(cv.imread(image_path), cv.COLOR_RGB2BGR))) # change the string here to the image you want to use
+    coef_matrix = np.zeros(shape=(shape[0]*shape[1],shape[0]*shape[1]))
     shape = img.shape
     midpoint = np.flip(np.array([k/2 for k in shape[:2]]))
+    fan_angle = max(fan_list) - min(fan_list)
 
-    if type == "fan":
-        beam_angle_ls = []
-        fan_angle = np.pi/4
+    def attenuation_calc(ls):
+        ls = np.array(ls)
+        
+        if len(ls) == 0:
+            return 1
+        else:
+            for i, x in enumerate(ls):
+                if x < 10:
+                    ls[i] = 10
+            return ls
+           
 
-        if no_beams > 0:
-            if no_beams == 1:
-                beam_angle_ls.append(0)
-            elif no_beams - 2 >= 0:
-                if no_beams % 2 != 0:
-                    beam_angle_ls.append(0)
-                if no_beams % 2 != 0:
-                    for i in range(2,no_beams-1,2):
-                        angle = fan_angle*(i)/((no_beams-1)*2)
-                        beam_angle_ls.append(angle)
-                        beam_angle_ls.insert(0,-angle)
-                else:        
-                    for i in range(2,no_beams-1,2):
-                        angle = fan_angle*(i)/((no_beams)*2)
-                        beam_angle_ls.append(angle)
-                        beam_angle_ls.insert(0,-angle)
-                beam_angle_ls.insert(0,-fan_angle/2)
-                beam_angle_ls.append(fan_angle/2)
-        print("Fan angle list has been completed")
-
+    if fan_list:
         if shape[0] <= shape[1]:
             ring_rad = (shape[1]*np.tan((np.pi)/2-fan_angle))/2 + shape[0]/2
         elif shape[0] > shape[1]:
             ring_rad = (shape[0]*np.tan((np.pi)/2-fan_angle))/2 + shape[1]/2
         print("Ring radius has been calculated")
-    
-    elif type == "parallel":
-        start_point_ls = []
-        
+        for i in ring_subdivisions:
+
+            end_pos_ls = []
+            angle = (2*np.pi*i/ring_subdivisions)* aperture
+            start_pos = np.array([ring_rad*np.cos(angle),ring_rad*np.sin(angle)]) + midpoint
+
+            for j in fan_list:
+                end_pos = start_pos - np.array([2*ring_rad*np.cos(angle-j), 2*ring_rad*np.sin(angle-j)])
+                end_pos_ls.append(end_pos)
+
+            for colour in 1: # make sure to change this to shape[-1] once youve sorted colour stuff out
+                output_vector = []
+                for ii in end_pos_ls:
+                    atn_coef_ls = []
+                    x_subdivisions = np.trunc(np.linspace(start_pos[0], ii[0], beam_subdivisions))
+                    y_subdivisions = np.trunc(np.linspace(start_pos[1], ii[1], beam_subdivisions))
+                    # trunc used here cause all the pixel positions are integer values
+
+                    for dx, dy in zip(x_subdivisions, y_subdivisions):
+                        if 0 <= dx < img.shape[1] and 0 <= dy < img.shape[0]:
+                            atn_coef_ls.append(img[int(dy), int(dx), colour])
+                            coef_matrix[int(dy), int(dx)] += 1
+                    output_vector.append(attenuation_calc(atn_coef_ls))
+    fig, ax = plt.subplots(1,2,figsize=(9,4))
+    ax[1].imshow(coef_matrix, cmap='gray')    
+    ax[0].imshow(np.flipud(img))
+    plt.show()
+
 
         
         
