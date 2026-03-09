@@ -1,0 +1,5 @@
+- The "Cylinder" (Bone): Place a high-velocity circle in the middle of your grid to represent a cross-section of a leg or arm bone
+- The "Double Circle" (Lungs): Place two low-velocity ovals to mimic a chest cavity
+- The "Anomaly" (Tumor/Crack): Place a tiny, single square with a different value. This tests if your ART algorithm is sharp enough to find small details, which is critical for the "safety-critical structures" (like cracks in engines) mentioned in the brief 
+- 2D body? 
+- How to record the ultrasound wave? Reflection or record
