@@ -49,14 +49,81 @@ def video_capture():
     cap.release()
     cv.destroyAllWindows()
     
+# video capture function remains fine and is so good rn (ie i am putting off doing the next bit)
+# to do list:
+# change the grid setup function to be a SETUP function as it just does everythihng
+# make it so you can choose what type of reconstruction you want (backproj/ART) and also what type of beam emission you want to use (fan/line)
+# make a separate plotting function where it plots the image and the reconstruciton on one plot and on another it plots the sinogram and
+# (optionally) a scrollable graph where it shows position and the sinogram segment calculated
+# as for breaking up the functions, the following steps are what need to be done
+#
+# use the type as a check and make each function check for it then it should work fluidly
+#
+#
+# ART/Fan:
+# 
+# firstly the current variables are the ones that need to be fed into it but really the output data must be equal to NxM (where NxM is the number of pixels)
+# so a calculation regarding that number must be done to find out the optimal ones (for now do the closest square possible but ill think about optimisation later
+# then calculate the position of the emmittor (already done)
+# then create fan list (this will need adapting for the line emittor so make this a function)
+# calculate the end points of the beams (currently done for fans but can be adapted i think)
+# NEWNEWNEW---- create a function that gets valid subdivision values and then create a matrix of coefficients (or was it cofactors)
+# then do attentuation calc like usual and create the sinogram like usual (check the maths on what the dimentions need to be cause i think they need to be a certain thing)
+# then do myles' solving thing and that should be all good
+#
+# back proj/line:
+#
+# create a line/parrelel emmitor calculation function
+# then do back proj (most of the stuff that it needs should be sorted by the time the ART and fan model are fixed up)
 
 
+def beam_setup(type, img, fan_angle, no_beams, no_permutations):
 
-@get_runtime
+    shape = img.shape
+    midpoint = np.flip(np.array([k/2 for k in shape[:2]]))
+
+    if type == "fan":
+        beam_angle_ls = []
+        fan_angle = np.pi/4
+
+        if no_beams > 0:
+            if no_beams == 1:
+                beam_angle_ls.append(0)
+            elif no_beams - 2 >= 0:
+                if no_beams % 2 != 0:
+                    beam_angle_ls.append(0)
+                if no_beams % 2 != 0:
+                    for i in range(2,no_beams-1,2):
+                        angle = fan_angle*(i)/((no_beams-1)*2)
+                        beam_angle_ls.append(angle)
+                        beam_angle_ls.insert(0,-angle)
+                else:        
+                    for i in range(2,no_beams-1,2):
+                        angle = fan_angle*(i)/((no_beams)*2)
+                        beam_angle_ls.append(angle)
+                        beam_angle_ls.insert(0,-angle)
+                beam_angle_ls.insert(0,-fan_angle/2)
+                beam_angle_ls.append(fan_angle/2)
+        print("Fan angle list has been completed")
+
+        if shape[0] <= shape[1]:
+            ring_rad = (shape[1]*np.tan((np.pi)/2-fan_angle))/2 + shape[0]/2
+        elif shape[0] > shape[1]:
+            ring_rad = (shape[0]*np.tan((np.pi)/2-fan_angle))/2 + shape[1]/2
+        print("Ring radius has been calculated")
+    
+    elif type == "parallel":
+        start_point_ls = []
+        
+
+        
+        
+
+
 def grid_setup(fan_angle, no_beams, ring_subdivisions, beam_subdivisions, image_string, show_plot):
     beam_angle_ls = []
     image_path = f"test_images/{image_string}"
-    img = np.flipud(np.array(cv.cvtColor(cv.imread(image_path), cv.COLOR_RGB2BGR))) # this is what needs to be fed to other functions so save it
+    img = np.flipud(np.array(cv.cvtColor(cv.imread(image_path), cv.COLOR_RGB2BGR))) # change the string here to the image you want to use
 
     fan_angle = np.pi/4
     shape = img.shape
