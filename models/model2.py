@@ -105,9 +105,11 @@ def fan_setup(fan_angle, no_beams):
 
 def ring_thing(fan_list, ring_subdivisions, beam_subdivisions, aperture, image_string):
     image_path = f"test_images/{image_string}"
+    
     img = np.flipud(np.array(cv.cvtColor(cv.imread(image_path), cv.COLOR_RGB2BGR))) # change the string here to the image you want to use
-    coef_matrix = np.zeros(shape=(shape[0]*shape[1],shape[0]*shape[1]))
     shape = img.shape
+    coef_matrix = np.zeros(shape=(shape[0]*shape[1],shape[0]*shape[1]))
+    
     midpoint = np.flip(np.array([k/2 for k in shape[:2]]))
     fan_angle = max(fan_list) - min(fan_list)
 
@@ -129,7 +131,7 @@ def ring_thing(fan_list, ring_subdivisions, beam_subdivisions, aperture, image_s
         elif shape[0] > shape[1]:
             ring_rad = (shape[0]*np.tan((np.pi)/2-fan_angle))/2 + shape[1]/2
         print("Ring radius has been calculated")
-        for i in ring_subdivisions:
+        for i in range(ring_subdivisions):
 
             end_pos_ls = []
             angle = (2*np.pi*i/ring_subdivisions)* aperture
@@ -139,7 +141,7 @@ def ring_thing(fan_list, ring_subdivisions, beam_subdivisions, aperture, image_s
                 end_pos = start_pos - np.array([2*ring_rad*np.cos(angle-j), 2*ring_rad*np.sin(angle-j)])
                 end_pos_ls.append(end_pos)
 
-            for colour in 1: # make sure to change this to shape[-1] once youve sorted colour stuff out
+            for colour in range(1): # make sure to change this to shape[-1] once youve sorted colour stuff out
                 output_vector = []
                 for ii in end_pos_ls:
                     atn_coef_ls = []
