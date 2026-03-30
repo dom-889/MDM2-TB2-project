@@ -23,8 +23,8 @@ def FBP(A, b, num_iterations=10, lambda_val=1.0):
         r_fft_filtered = r_fft * ramp
         r_filtered = np.real(np.fft.ifft(r_fft_filtered, axis=0))
 
-
-        delta_x = A.T @ r_filtered
+        #Iterative step
+        delta_x = A.T @ r_filtered #Think this is the backprojection?
         delta_x /= col_norm #Normalize by column sums
 
         x += lambda_val * delta_x #Update the image estimate
