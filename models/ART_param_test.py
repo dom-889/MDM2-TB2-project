@@ -22,7 +22,7 @@ def compute_rmse(a, b):
 
 
 ring_subdivisions = [360]
-beam_sizes = [64]
+beam_sizes = [128]
 beam_subdivisions = [8, 11, 16, 23, 32, 45, 64, 91, 128]
 fan_angles = [np.pi/4]
 iterations = [30]
@@ -88,6 +88,7 @@ plt.title(f"Reconstructed Image (RMSE: {best_rmse:.4f}, Beam Sub: {best_params['
 plt.axis('off')
 plt.subplot(1,3,3)
 plt.plot(beam_subdivisions, beam_sub_rmses, marker='o')
+plt.grid(True)
 plt.xlabel("Beam Subdivisions")
 plt.ylabel("Normalised RMSE")
 plt.title("Parameter Sweep")
