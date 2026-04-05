@@ -24,6 +24,7 @@ def compute_rmse(a, b):
 ring_subdivisions = [360]
 beam_sizes = [128]
 beam_subdivisions = [8, 11, 16, 23, 32, 45, 64, 91, 128]
+
 fan_angles = [np.pi/4]
 iterations = [30]
 
