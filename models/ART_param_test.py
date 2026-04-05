@@ -6,81 +6,98 @@ import numpy as np
 
 image_name = "shepp_logan_phantom.png"
 
-'''
-ring_subdivisions = [30, 60, 90, 180, 360]
-beam_sizes = [8, 16, 32, 64, 128]
-beam_subdivisions = [10, 50, 100, 200]
-fan_angles = [np.pi/8, np.pi/6, np.pi/4, np.pi/3,np.pi/2]
-iterations = [5, 10, 20, 50]
+n = 64
 
 phantom = cv.imread(f"test_images/{image_name}", cv.IMREAD_GRAYSCALE)
-x_ref = phantom.flatten()
-resize_ref = phantom.shape[0] 
+phantom = cv.resize(phantom, (n, n))
 
-def compute_rmse(x, x_ref):
-    return np.sqrt(np.mean((x - x_ref)**2))
+x_true = np.log10(np.clip(cv.resize(cv.imread(f"test_images/{image_name}", cv.IMREAD_GRAYSCALE),(n, n)).astype(float) / 255, 1e-6, None)).flatten()
+true_img = x_true.reshape(n, n)
 
-best_rmse = float('inf')
+
+
+# compute RMSE 
+def compute_rmse(a, b):
+    return np.sqrt(np.mean((a - b)**2))
+
+
+ring_subdivisions = [360]
+beam_sizes = [64]
+beam_subdivisions = [8, 11, 16, 23, 32, 45, 64, 91, 128]
+fan_angles = [np.pi/4]
+iterations = [30]
+
+beam_sub_rmses = []
+
+best_rmse = None
 best_params = None
 
 print("Starting parameter sweep...")
 for ring_sub in ring_subdivisions:
     for beam_size in beam_sizes:
          for fan_angle in fan_angles:
-            fan_list = fan_setup(fan_angle, no_beams=beam_size)
+            fan_list = fan_setup(fan_angle, beam_size)
             for beam_sub in beam_subdivisions:
-                resize_test = 64
                 A, b, _ = ring_thing(fan_list,
                                         ring_subdivisions=ring_sub,
                                         beam_subdivisions=beam_sub,
                                         aperture=1,
                                         image_string=image_name,
-                                        resize=resize_test)
+                                        resize=n)
                 for num_iter in iterations:
                     x = ART_solver(A, b, num_iterations=num_iter)
-                    x_ref_small = cv.resize(phantom, (resize_test, resize_test)).flatten()
-                    rmse = compute_rmse(x, x_ref_small)
-                    print(f"Ring: {ring_sub}, Beam: {beam_size}, Beam Sub: {beam_sub}, Iter: {num_iter} -> RMSE: {rmse:.4f}")
+                    x_corrected = np.flipud(x.reshape(n, n)).flatten()
+                    x_corrected = x_corrected.astype(float)
+                    rmse = compute_rmse(x_corrected, x_true)
+                    rmse = rmse / (np.max(x_true) - np.min(x_true))  # Normalise RMSE
 
-                    if rmse < best_rmse:
+                    print(f"Ring: {ring_sub}, Beam: {beam_size}, Beam Sub: {beam_sub}, Iter: {num_iter} -> RMSE: {rmse:.4f}")
+                    print(f"Fan Angle: {np.degrees(fan_angle):.1f}° -> RMSE: {rmse:.4f}")
+                    if best_rmse is None or rmse < best_rmse:
                         best_rmse = rmse
                         best_params = {
                             "ring_subdivisions": ring_sub,
                             "beam_sizes": beam_size,
                             "beam_subdivisions": beam_sub,
+                            "fan_angle": fan_angle,
                             "iterations": num_iter
                         }
+                beam_sub_rmses.append(rmse)
 
-print("\nBest Parameters:")
-print(best_params)
-print(f"Best RMSE: {best_rmse:.4f}")
-
-fan_list_best = fan_setup(np.pi/4, no_beams=best_params["beam_sizes"])
+fan_list_best = fan_setup(best_params["fan_angle"], best_params["beam_sizes"])
 A_best, b_best, _ = ring_thing(fan_list_best,
                             ring_subdivisions=best_params["ring_subdivisions"],
                             beam_subdivisions=best_params["beam_subdivisions"],
                             aperture=1,
                             image_string=image_name,
-                            resize=64)
+                            resize=n)
 x_best = ART_solver(A_best, b_best, num_iterations=best_params["iterations"])
-plt.figure(figsize=(8,4))
-plt.subplot(1,2,1)
+x_best = np.flipud(x_best.reshape(n, n)).flatten()
+x_best = x_best.astype(float)
+
+print(beam_sub_rmses)
+
+plt.figure(figsize=(12,4))
+plt.subplot(1,3,1)
 plt.imshow(phantom, cmap='gray')
 plt.title("Original Phantom")
-plt.subplot(1,2,2)
-plt.imshow(x_best.reshape(64, 64), cmap='gray')
-plt.title("Reconstructed Image")
 plt.axis('off')
+plt.subplot(1,3,2)
+plt.imshow(x_best.reshape(n, n), cmap='gray')
+plt.title(f"Reconstructed Image (RMSE: {best_rmse:.4f}, Beam Sub: {best_params['beam_subdivisions']})")
+plt.axis('off')
+plt.subplot(1,3,3)
+plt.plot(beam_subdivisions, beam_sub_rmses, marker='o')
+plt.xlabel("Beam Subdivisions")
+plt.ylabel("Normalised RMSE")
+plt.title("Parameter Sweep")
+
 plt.tight_layout()
 plt.show()
+print("\nBest Parameters:")
+print(best_params)
+
 '''
-
-def compute_rmse(x, x_ref):
-    return np.sqrt(np.mean((x - x_ref)**2))
-
-n = 100
-phantom = cv.imread(f"test_images/{image_name}", cv.IMREAD_GRAYSCALE)
-
 fan_list = fan_setup(np.pi/5, 360)
 A, b, _ = ring_thing(fan_list,
                     ring_subdivisions=90,
@@ -94,10 +111,6 @@ x_corrected = x_corrected.astype(float)
 #x_ref_small = cv.resize(phantom, (n, n)).flatten().astype(float)
 #rmse = compute_rmse(x_corrected, x_ref_small)
 
-phantom_float = phantom.astype(float) / 255.0
-x_corrected_float = x_corrected / np.max(x_corrected)  # normalize reconstruction
-rmse = compute_rmse(x_corrected_float, cv.resize(phantom_float, (n,n)).flatten())
-
 plt.figure(figsize=(8,4))
 plt.subplot(1,2,1)
 plt.imshow(phantom, cmap='gray')
@@ -108,3 +121,4 @@ plt.title(f"Reconstructed Image (RMSE: {rmse:.4f})")
 plt.axis('off')
 plt.tight_layout()
 plt.show()
+'''
