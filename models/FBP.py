@@ -49,9 +49,19 @@ def compute_rmse(a, b):
 n = 64
 
 image_name = "shepp_logan_phantom.png"
-phantom = cv.imread(f"test_images/{"temp_noisy.png"}", cv.IMREAD_GRAYSCALE)
+phantom = cv.imread(f"test_images/{image_name}", cv.IMREAD_GRAYSCALE)
+#phantom = cv.resize(phantom, (n, n), interpolation=cv.INTER_AREA)
+phantom = phantom.astype(np.float32) / 255.0
+ref = cv.resize(phantom, (n, n), interpolation=cv.INTER_AREA).flatten()
+ref_norm = (ref - np.min(ref)) / (np.max(ref) - np.min(ref))
 
-w_iterations = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+
+sigma = 0.025
+noisy_image = phantom + np.random.normal(0, sigma, phantom.shape)
+noisy_image = np.clip(noisy_image, 0, 1)
+cv.imwrite("test_images/temp_noisy.png", (noisy_image * 255).astype(np.uint8))
+
+w_iterations = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
 w_strengths = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 
 rmses = np.zeros((len(w_iterations), len(w_strengths)))
@@ -84,7 +94,7 @@ best_params = None
 # Parameter sweep for window strength and iterations
 for i, w_iter in enumerate(w_iterations):
     for j, w_str in enumerate(w_strengths):
-        x_fbp = FBP_window_solver(A, b, num_iterations=20, lambda_val=1, window_strength=w_str, window_iterations=w_iter)
+        x_fbp = FBP_window_solver(A, b, num_iterations=25, lambda_val=1, window_strength=w_str, window_iterations=w_iter)
         x_fbp_image = np.flipud(x_fbp.reshape(n, n))
         x_norm = (x_fbp_image - np.min(x_fbp_image)) / (np.max(x_fbp_image) - np.min(x_fbp_image))
         #x_norm = x_norm ** 1.5
@@ -98,17 +108,18 @@ for i, w_iter in enumerate(w_iterations):
 print(f"Best RMSE: {best_rmse:.4f} with parameters: {best_params}")
 
 optimal_w_iter, optimal_w_str = best_params
-x_fbp_optimal = FBP_window_solver(A, b, num_iterations=20, lambda_val=1, window_strength=optimal_w_str, window_iterations=optimal_w_iter)
+x_fbp_optimal = FBP_window_solver(A, b, num_iterations=20, lambda_val=0.8, window_strength=optimal_w_str, window_iterations=optimal_w_iter)
 x_fbp_image_optimal = np.flipud(x_fbp_optimal.reshape(n, n))
 x_norm_optimal = (x_fbp_image_optimal - np.min(x_fbp_image_optimal)) / (np.max(x_fbp_image_optimal) - np.min(x_fbp_image_optimal))
-#x_norm_optimal = x_norm_optimal ** 1.5
+x_norm_optimal = x_norm_optimal ** 1.5
 
 
 
 plt.figure(figsize=(8,4))
 plt.subplot(1,2,1)
-plt.imshow(phantom, cmap='gray')
-plt.title('Original Phantom')
+plt.imshow(noisy_image, cmap='gray')
+plt.title('Original  Noisy Phantom')
+plt.text(0.5, -0.1, f'Noise Std Dev: {sigma}', ha='center', va='center', transform=plt.gca().transAxes)
 plt.axis('off')
 
 plt.subplot(1,2,2)
