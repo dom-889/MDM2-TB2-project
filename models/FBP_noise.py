@@ -43,6 +43,23 @@ def FBP_window_solver(A, b, num_iterations=10, lambda_val=1.0, window_strength=0
 
     return x
 
+
+def edge_rmse(ref, recon):
+    sobel_ref_x = cv.Sobel(ref.astype(np.float32), cv.CV_64F, 1, 0, ksize=3)
+    sobel_ref_y = cv.Sobel(ref.astype(np.float32), cv.CV_64F, 0, 1, ksize=3)
+    edge_ref = np.sqrt(sobel_ref_x**2 + sobel_ref_y**2)
+
+    sobel_recon_x = cv.Sobel(recon.astype(np.float32), cv.CV_64F, 1, 0, ksize=3)
+    sobel_recon_y = cv.Sobel(recon.astype(np.float32), cv.CV_64F, 0, 1, ksize=3)
+    edge_recon = np.sqrt(sobel_recon_x**2 + sobel_recon_y**2)
+
+    edge_ref_norm = (edge_ref - np.min(edge_ref)) / (np.max(edge_ref) - np.min(edge_ref))
+    edge_recon_norm = (edge_recon - np.min(edge_recon)) / (np.max(edge_recon) - np.min(edge_recon))
+
+    rmse_edges = np.sqrt(np.mean((edge_ref_norm - edge_recon_norm)**2))
+    return rmse_edges
+
+
 def compute_rmse(a, b):
     return np.sqrt(np.mean((a - b)**2))
 
@@ -55,6 +72,7 @@ phantom = phantom.astype(np.float32) / 255.0
 ref = cv.resize(phantom, (n, n), interpolation=cv.INTER_AREA).flatten()
 ref_norm = (ref - np.min(ref)) / (np.max(ref) - np.min(ref))
 
+solver_iterations = 25
 w_iterations = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
 w_strengths = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 
@@ -71,10 +89,10 @@ x_ref_corrected = np.flipud(x_ref.reshape(n, n)).flatten()
 x_ref_corrected = x_ref_corrected.astype(float)
 x_ref_norm = (x_ref_corrected - np.min(x_ref_corrected)) / (np.max(x_ref_corrected) - np.min(x_ref_corrected))
 
-sigmas = [0, 0.05, 0.1, 0.15]
+sigmas = [0, 0.05, 0.1]
 
-fig_imgs, axes_imgs = plt.subplots(2, len(sigmas), figsize=(3*len(sigmas), 7))
-fig_heatmaps, axes_heatmaps = plt.subplots(1, len(sigmas), figsize=(3*len(sigmas), 4))
+fig_imgs, axes_imgs = plt.subplots(3, len(sigmas), figsize=(3*len(sigmas), 10))
+fig_heatmaps, axes_heatmaps = plt.subplots(2, len(sigmas), figsize=(3*len(sigmas), 8))
 
 for i, sigma in enumerate(sigmas):
     noisy_image = phantom + np.random.normal(0, sigma, phantom.shape)
@@ -83,6 +101,7 @@ for i, sigma in enumerate(sigmas):
 
 
     rmses = np.zeros((len(w_iterations), len(w_strengths)))
+    edge_rmses = np.zeros((len(w_iterations), len(w_strengths)))
 
 
     fan_list = fan_setup(np.pi/4, no_beams=128)
@@ -94,29 +113,43 @@ for i, sigma in enumerate(sigmas):
                            resize=n)
 
     best_rmse = None
+    best_edge_rmse = None
     best_params = None
+    best_params_edge = None
 
     # Parameter sweep for window strength and iterations
     for j, w_iter in enumerate(w_iterations):
         for k, w_str in enumerate(w_strengths):
-            x_fbp = FBP_window_solver(A, b, num_iterations=25, lambda_val=0.8, window_strength=w_str, window_iterations=w_iter)
+            x_fbp = FBP_window_solver(A, b, num_iterations=solver_iterations, lambda_val=0.8, window_strength=w_str, window_iterations=w_iter)
             x_fbp_image = np.flipud(x_fbp.reshape(n, n))
             x_norm = (x_fbp_image - np.min(x_fbp_image)) / (np.max(x_fbp_image) - np.min(x_fbp_image))
             #x_norm = x_norm ** 1.5
             rmse = compute_rmse(ref_norm.flatten(), x_norm.flatten())
             rmses[j, k] = rmse
-            print(f"Window Iterations: {w_iter}, Window Strength: {w_str}, RMSE: {rmse:.4f}")
+            rmse_edg = edge_rmse(x_ref_norm.reshape(n, n), x_norm.reshape(n, n))
+            edge_rmses[j, k] = rmse_edg
+            print(f"Window Iterations: {w_iter}, Window Strength: {w_str}, RMSE: {rmse:.4f}, Edge RMSE: {rmse_edg:.4f}")
             if best_rmse is None or rmse < best_rmse:
                 best_rmse = rmse
                 best_params = (w_iter, w_str)
+            if best_edge_rmse is None or rmse_edg < best_edge_rmse:
+                best_edge_rmse = rmse_edg
+                best_params_edge = (w_iter, w_str)
 
     print(f"Best RMSE: {best_rmse:.4f} with parameters: {best_params}")
+    print(f"Best Edge RMSE: {best_edge_rmse:.4f} with parameters: {best_params_edge}")
 
     optimal_w_iter, optimal_w_str = best_params
-    x_fbp_optimal = FBP_window_solver(A, b, num_iterations=25, lambda_val=0.8, window_strength=optimal_w_str, window_iterations=optimal_w_iter)
+    x_fbp_optimal = FBP_window_solver(A, b, num_iterations=solver_iterations, lambda_val=0.8, window_strength=optimal_w_str, window_iterations=optimal_w_iter)
     x_fbp_image_optimal = np.flipud(x_fbp_optimal.reshape(n, n))
     x_norm_optimal = (x_fbp_image_optimal - np.min(x_fbp_image_optimal)) / (np.max(x_fbp_image_optimal) - np.min(x_fbp_image_optimal))
     x_norm_optimal = x_norm_optimal ** 1.5
+
+    optimal_w_iter_edge, optimal_w_str_edge = best_params_edge
+    x_fbp_optimal_edge = FBP_window_solver(A, b, num_iterations=solver_iterations, lambda_val=0.8, window_strength=optimal_w_str_edge, window_iterations=optimal_w_iter_edge)
+    x_fbp_image_optimal_edge = np.flipud(x_fbp_optimal_edge.reshape(n, n))
+    x_norm_optimal_edge = (x_fbp_image_optimal_edge - np.min(x_fbp_image_optimal_edge)) / (np.max(x_fbp_image_optimal_edge) - np.min(x_fbp_image_optimal_edge))
+    x_norm_optimal_edge = x_norm_optimal_edge ** 1.5
 
 
     axes_imgs[0,i].imshow(noisy_image, cmap='gray')
@@ -131,23 +164,33 @@ for i, sigma in enumerate(sigmas):
          ha='center', va='center', transform=axes_imgs[1,i].transAxes)
     axes_imgs[1,i].axis('off')
 
-    ax = axes_heatmaps[i]
-    im = ax.imshow(rmses, cmap='hot', 
-                   extent=[min(w_strengths), max(w_strengths), max(w_iterations), min(w_iterations)],
-                   aspect='auto',
-                   )
-    ax.set_title(f"σ={sigma}")
-    ax.set_xlabel("Window Strength")
-    ax.set_ylabel("Window Iterations")
-    fig_heatmaps.colorbar(im, ax=ax)
+    axes_imgs[2,i].imshow(x_norm_optimal_edge, cmap='gray')
+    axes_imgs[2,i].set_title('FBP Reconstruction (Edge-Optimized)')
+    axes_imgs[2,i].text(0.5, -0.15, f'Edge RMSE: {best_edge_rmse:.4f}\n Window Iterations: {optimal_w_iter_edge}\n Window Strength: {optimal_w_str_edge}', 
+         ha='center', va='center', transform=axes_imgs[2,i].transAxes)
+    axes_imgs[2,i].axis('off')
 
-    '''
-    axes_heatmaps[i].imshow(rmses, cmap='hot', extent=[min(w_strengths), max(w_strengths), max(w_iterations), min(w_iterations)], aspect='auto')
-    axes_heatmaps[i].set_title('RMSE Heatmap')
-    axes_heatmaps[i].set_xlabel('Window Strength')
-    axes_heatmaps[i].set_ylabel('Window Iterations')
-    axes_heatmaps[i].colorbar(label='RMSE')
-    '''
+    ax0 = axes_heatmaps[0,i]
+    im = ax0.imshow(rmses, cmap='hot', 
+                    extent=[min(w_strengths), max(w_strengths), max(w_iterations), min(w_iterations)],
+                    aspect='auto',
+                    )
+    ax0.set_title(f"σ={sigma}")
+    ax0.set_xlabel("Window Strength")
+    ax0.set_ylabel("Window Iterations")
+    
+    ax1 = axes_heatmaps[1,i]
+    im_edge = ax1.imshow(edge_rmses, cmap='hot',
+                    extent=[min(w_strengths), max(w_strengths), max(w_iterations), min(w_iterations)],
+                    aspect='auto',
+                    )
+    ax1.set_xlabel("Window Strength")
+    ax1.set_ylabel("Window Iterations")
+    fig_heatmaps.colorbar(im, ax=ax0)
+    fig_heatmaps.colorbar(im_edge, ax=ax1)
+
+
+   
     
 plt.tight_layout()
 fig_imgs.suptitle("Noisy Phantoms and FBP Reconstructions", fontsize=16)
