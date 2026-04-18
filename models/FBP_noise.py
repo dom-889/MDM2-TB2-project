@@ -89,10 +89,10 @@ x_ref_corrected = np.flipud(x_ref.reshape(n, n)).flatten()
 x_ref_corrected = x_ref_corrected.astype(float)
 x_ref_norm = (x_ref_corrected - np.min(x_ref_corrected)) / (np.max(x_ref_corrected) - np.min(x_ref_corrected))
 
-sigmas = [0, 0.05, 0.1]
+sigmas = [0, 0.075, 0.15]
 
-fig_imgs, axes_imgs = plt.subplots(3, len(sigmas), figsize=(3*len(sigmas), 10))
-fig_heatmaps, axes_heatmaps = plt.subplots(2, len(sigmas), figsize=(3*len(sigmas), 8))
+fig_imgs, axes_imgs = plt.subplots(3, len(sigmas), figsize=(3*len(sigmas), 12))
+fig_heatmaps, axes_heatmaps = plt.subplots(2, len(sigmas), figsize=(3*len(sigmas), 9))
 
 for i, sigma in enumerate(sigmas):
     noisy_image = phantom + np.random.normal(0, sigma, phantom.shape)
@@ -165,7 +165,7 @@ for i, sigma in enumerate(sigmas):
     axes_imgs[1,i].axis('off')
 
     axes_imgs[2,i].imshow(x_norm_optimal_edge, cmap='gray')
-    axes_imgs[2,i].set_title('FBP Reconstruction (Edge-Optimized)')
+    #axes_imgs[2,i].set_title('FBP Reconstruction (Edge-Optimized)')
     axes_imgs[2,i].text(0.5, -0.15, f'Edge RMSE: {best_edge_rmse:.4f}\n Window Iterations: {optimal_w_iter_edge}\n Window Strength: {optimal_w_str_edge}', 
          ha='center', va='center', transform=axes_imgs[2,i].transAxes)
     axes_imgs[2,i].axis('off')
