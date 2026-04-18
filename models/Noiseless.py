@@ -7,7 +7,7 @@ from skimage.metrics import structural_similarity as ssim
 
 # Ensure local imports work
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from MDM4 import fan_setup, ring_thing, ART_solver
+from fixed_model import fan_setup, ring_thing, ART_solver
 
 # ---------------------------------------------------------
 # 1. SETUP & PHANTOM GENERATION
@@ -142,7 +142,7 @@ ax1.grid(True, linestyle='--', alpha=0.6)
 ax2 = ax1.twinx()  
 color = 'tab:blue'
 ax2.set_ylabel('Structural Similarity - SSIM (%)', color=color, fontweight='bold')
-line2 = ax2.plot(iteration_tests, ssim_scores, marker='s', color=color, linewidth=2.5, label='SSIM (Denoised)')
+line2 = ax2.plot(iteration_tests, ssim_scores, marker='s', color=color, linewidth=2.5, label='SSIM')
 ax2.tick_params(axis='y', labelcolor=color)
 
 # Combine Legends
@@ -153,3 +153,4 @@ plt.title("ART Iteration Analysis: Sharpness vs. SSIM", fontsize=14, fontweight=
 plt.tight_layout()
 plt.savefig("project/Images/iteration_analysis.png", dpi=150)
 plt.show()
+
