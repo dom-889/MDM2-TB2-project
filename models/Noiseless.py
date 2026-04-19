@@ -126,31 +126,44 @@ for iters in iteration_tests:
     ssim_scores.append(current_ssim * 100)
     
 # ---------------------------------------------------------
-# 5. PLOT ANALYSIS RESULTS
 # ---------------------------------------------------------
-fig2, ax1 = plt.subplots(figsize=(10, 6))
+# 5. PLOT ANALYSIS RESULTS (Preview Version)
+# ---------------------------------------------------------
+fig, ax1 = plt.subplots(figsize=(10, 6.5))
+fig.subplots_adjust(bottom=0.2) # Make room for legend at the bottom
 
-# Left Y-axis (Sharpness)
-color = 'tab:red'
+# --- LEFT Y-AXIS: SHARPNESS (tab:red) ---
+color_sharp = 'tab:red'
 ax1.set_xlabel('Number of ART Iterations', fontweight='bold')
-ax1.set_ylabel('Sharpness Preservation (%)', color=color, fontweight='bold')
-line1 = ax1.plot(iteration_tests, sharpness_scores, marker='o', color=color, linewidth=2.5, label='Edge Sharpness')
-ax1.tick_params(axis='y', labelcolor=color)
+ax1.set_ylabel('Sharpness Preservation (%)', color=color_sharp, fontweight='bold')
+
+line1 = ax1.plot(iteration_tests, sharpness_scores, marker='o', linestyle='-', 
+                 color=color_sharp, linewidth=2.5, label='Edge Sharpness')
+
+ax1.tick_params(axis='y', labelcolor=color_sharp)
 ax1.grid(True, linestyle='--', alpha=0.6)
 
-# Right Y-axis (SSIM)
+# --- RIGHT Y-AXIS: SSIM (tab:blue) ---
 ax2 = ax1.twinx()  
-color = 'tab:blue'
-ax2.set_ylabel('Structural Similarity - SSIM (%)', color=color, fontweight='bold')
-line2 = ax2.plot(iteration_tests, ssim_scores, marker='s', color=color, linewidth=2.5, label='SSIM')
-ax2.tick_params(axis='y', labelcolor=color)
+color_ssim = 'tab:blue'
+ax2.set_ylabel('Structural Similarity - SSIM (%)', color=color_ssim, fontweight='bold')
 
-# Combine Legends
+line2 = ax2.plot(iteration_tests, ssim_scores, marker='s', linestyle='-', 
+                 color=color_ssim, linewidth=2.5, label='SSIM')
+
+ax2.tick_params(axis='y', labelcolor=color_ssim)
+
+plt.title("ART Iteration Analysis: Sharpness vs. SSIM", fontsize=14, fontweight='bold')
+
+# --- LEGEND HANDLING ---
 lines = line1 + line2
 labels = [l.get_label() for l in lines]
-ax1.legend(lines, labels, loc='upper left', fontsize=10)
-plt.title("ART Iteration Analysis: Sharpness vs. SSIM", fontsize=14, fontweight='bold')
-plt.tight_layout()
-plt.savefig("project/Images/iteration_analysis.png", dpi=150)
+# Place legend below the graph
+ax1.legend(lines, labels, loc='upper center', bbox_to_anchor=(0.5, -0.15), 
+           fancybox=True, shadow=True, ncol=2, fontsize=10, frameon=True)
+
+fig.tight_layout(rect=[0, 0.15, 1, 1])
+
+# Show the plot interactively!
 plt.show()
 
