@@ -116,15 +116,15 @@ print(s_recon)
 fig, ax1 = plt.subplots(figsize=(10, 6))
 
 color = 'tab:red'
-ax1.set_xlabel('Number of Beam Subdivisions', fontweight='bold')
-ax1.set_ylabel('Sharpness Preservation (%)', color=color, fontweight='bold')
+ax1.set_xlabel('Number of Beam Subdivisions', fontweight='bold', fontsize=14)
+ax1.set_ylabel('Sharpness Preservation (%)', color=color, fontweight='bold', fontsize=14)
 line1 = ax1.plot(x, sharpness_scores, color=color, linewidth=2.5, label='Edge Sharpness')
 ax1.tick_params(axis='y', labelcolor=color)
 ax1.grid(True, linestyle='--', alpha=0.6)
 
 ax2 = ax1.twinx()  
 color = 'tab:blue'
-ax2.set_ylabel('Structural Similarity - SSIM (%)', color=color, fontweight='bold')
+ax2.set_ylabel('Structural Similarity - SSIM (%)', color=color, fontweight='bold', fontsize=14)
 line2 = ax2.plot(x, ssim_scores, color=color, linewidth=2.5, label='SSIM')
 ax2.tick_params(axis='y', labelcolor=color)
 
@@ -136,7 +136,7 @@ plt.title('ART Beam Subdivision Analysis (Shepp-Logan)', fontsize=14, fontweight
 plt.tight_layout()
 plt.savefig('Shepp_Logan_results_final/ART_param_sweep.png', dpi=150)
 
-plt.figure(figsize=(9,4))
+plt.figure(figsize=(8,4))
 plt.subplot(1,2,1)
 plt.imshow(true_img, cmap='gray')
 plt.title('True Image')

@@ -60,7 +60,7 @@ x_true = np.log10(np.clip(
 true_img = x_true.reshape(n, n)
 true_img = cv.resize(cv.imread(f"test_images/{image_name}", cv.IMREAD_GRAYSCALE), (n, n)).astype(np.float32)/255
 
-sigma = 0.0
+sigma = 0.
 noisy_image = phantom + np.random.normal(0, sigma, phantom.shape)
 noisy_image = np.clip(noisy_image, 0, 1)
 cv.imwrite("test_images/temp_noisy.png", (noisy_image * 255).astype(np.uint8))
@@ -100,10 +100,15 @@ def get_edge_sharpness(image, global_min, global_max, threshold_ratio=0.12):
 
 s_true, clean_edges = get_edge_sharpness(true_img, g_min, g_max, threshold_ratio=0.0)
 
+iterations = 25
+
 w_iterations = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
+w_iterations = np.linspace(0, iterations, iterations+1, dtype=int)
+#w_iterations = [0, 5, 10, 15, 20, 25]
 #w_iterations = [0, 5, 10, 15, 20]
 
 w_strengths = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+#w_strengths = [0.1, 0.5, 1.0]
 #w_strengths = [0.2, 0.4, 0.6, 0.8, 1.0]
 
 ssims = np.zeros((len(w_iterations), len(w_strengths)))
@@ -127,7 +132,7 @@ best_preservation_params = None
 # Parameter sweep for window strength and iterations
 for i, w_iter in enumerate(w_iterations):
     for j, w_str in enumerate(w_strengths):
-        x_recon = FBP_window_solver(A, b, num_iterations=25, lambda_val=1, window_strength=w_str, window_iterations=w_iter)
+        x_recon = FBP_window_solver(A, b, num_iterations=iterations, lambda_val=1, window_strength=w_str, window_iterations=w_iter)
         x_corrected = np.flipud(x_recon.reshape(n, n))
         x_norm = (x_corrected - np.min(x_corrected)) / (np.max(x_corrected) - np.min(x_corrected))
         temp_recon_image = x_norm.reshape(n, n)
@@ -157,10 +162,10 @@ for i, w_iter in enumerate(w_iterations):
 print(f'Best SSIM: {best_ssim:.4f}% with parameters: Window Iterations = {best_ssim_params[0]}, Window Strength = {best_ssim_params[1]}')
 print(f'Best Preservation: {best_preservation:.2f}% with parameters: Window Iterations = {best_preservation_params[0]}, Window Strength = {best_preservation_params[1]}')
 
-x_ssim_optimal = FBP_window_solver(A, b, num_iterations=25, lambda_val=1, window_strength=best_ssim_params[1], window_iterations=best_ssim_params[0])
+x_ssim_optimal = FBP_window_solver(A, b, num_iterations=iterations, lambda_val=1, window_strength=best_ssim_params[1], window_iterations=best_ssim_params[0])
 x_ssim_optimal = np.flipud(x_ssim_optimal.reshape(n, n))
 
-x_preservation_optimal = FBP_window_solver(A, b, num_iterations=25, lambda_val=1, window_strength=best_preservation_params[1], window_iterations=best_preservation_params[0])
+x_preservation_optimal = FBP_window_solver(A, b, num_iterations=iterations, lambda_val=1, window_strength=best_preservation_params[1], window_iterations=best_preservation_params[0])
 x_preservation_optimal = np.flipud(x_preservation_optimal.reshape(n, n))
 
 print(f'Optimal parameters: Window Iterations = {best_ssim_params[0]}, Window Strength = {best_ssim_params[1]}, SSIM = {best_ssim:.4f}')
@@ -173,12 +178,12 @@ plt.figure(figsize=(9,4))
 plt.subplot(1,2,1)
 plt.imshow(true_img, cmap='gray')
 plt.title('Original Reference Phantom')
-plt.text(0.5, -0.1, f'Noise Std Dev: {sigma}', ha='center', va='center', transform=plt.gca().transAxes)
+#plt.text(0.5, -0.1, f'Noise Std Dev: {sigma}', ha='center', va='center', transform=plt.gca().transAxes)
 plt.axis('off')
 
 plt.subplot(1,2,2)
 plt.imshow(x_ssim_optimal, cmap='gray')
-plt.title(f'Optimal Reconstruction\nWindow Iterations {best_ssim_params[0]} | Strength: {best_ssim_params[1]}\nSSIM: {best_ssim:.2f}  |  Edge Preservation: {best_preservation:.2f}%')
+plt.title(f'Optimal Reconstruction\nWindow Iterations {best_ssim_params[0]} | Strength: {best_ssim_params[1]}\nSSIM: {best_ssim:.2f}%  |  Edge Preservation: {best_preservation:.2f}%')
 #plt.xlabel(f'RMSE: {best_rmse:.4f}, Window Iterations: {optimal_w_iter}, Window Strength: {optimal_w_str}')
 #plt.text(0.5, -0.1, f'Window Iterations: {best_ssim_params[0]}\n Window Strength: {best_ssim_params[1]}',
         #ha='center', va='center', transform=plt.gca().transAxes)
@@ -194,19 +199,19 @@ plt.axis('off')
 plt.tight_layout()
 plt.savefig('Shepp_Logan_results_final/FBP_images.png', dpi=300)
 
-plt.figure()
+plt.figure(figsize=(9, 3))
 plt.subplot(1,2,1)
-plt.imshow(ssims, cmap='hot', extent=[min(w_strengths), max(w_strengths), max(w_iterations), min(w_iterations)], aspect='auto')
-plt.title('SSIM Heatmap')
-plt.xlabel('Window Strength')
-plt.ylabel('Window Iterations')
+plt.imshow(ssims.T, cmap='hot', extent=[min(w_iterations), max(w_iterations), min(w_strengths), max(w_strengths)], aspect='auto')
+plt.title('SSIM Heatmap', fontsize=12, fontweight='bold')
+plt.xlabel('Window Iterations', fontsize = 12)
+plt.ylabel('Window Strength', fontsize = 12)
 plt.colorbar(label='SSIM')
 
 plt.subplot(1,2,2)
-plt.imshow(preservations, cmap='hot', extent=[min(w_strengths), max(w_strengths), max(w_iterations), min(w_iterations)], aspect='auto')
-plt.title('Edge Preservation Heatmap')
-plt.xlabel('Window Strength')
-plt.ylabel('Window Iterations')
+plt.imshow(preservations.T, cmap='hot', extent=[min(w_iterations), max(w_iterations), min(w_strengths), max(w_strengths)], aspect='auto')
+plt.title('Edge Preservation Heatmap', fontsize=12, fontweight='bold')
+plt.xlabel('Window Iterations', fontsize=12)
+plt.ylabel('Window Strength', fontsize=12)
 plt.colorbar(label='Edge Preservation (%)')
 
 plt.tight_layout()
