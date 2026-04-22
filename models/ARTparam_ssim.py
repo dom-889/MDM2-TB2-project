@@ -37,14 +37,14 @@ data_range = g_max - g_min
 def get_edge_sharpness(image, global_min, global_max, threshold_ratio=0.1):
     """Measures gradient magnitude with noise suppression and thresholding."""
     scaled_image = (image - global_min) / (global_max - global_min + 1e-8)
-    blurred = cv.GaussianBlur(scaled_image.astype(np.float32), (5, 5), 0)
+    blurred = cv.GaussianBlur(scaled_image.astype(np.float32), (5, 5), 0) #5x5 Gaussian blur to surpress high frequencies
     
-    grad_x = cv.Sobel(blurred, cv.CV_64F, 1, 0, ksize=3)
+    grad_x = cv.Sobel(blurred, cv.CV_64F, 1, 0, ksize=3) #Compute horizontal and vertical gradients
     grad_y = cv.Sobel(blurred, cv.CV_64F, 0, 1, ksize=3)
-    magnitude = np.sqrt(grad_x**2 + grad_y**2)
+    magnitude = np.sqrt(grad_x**2 + grad_y**2) #Combine for overall edge magnitude
     
     max_edge = np.max(magnitude)
-    clean_magnitude = np.where(magnitude > (max_edge * threshold_ratio), magnitude, 0)
+    clean_magnitude = np.where(magnitude > (max_edge * threshold_ratio), magnitude, 0) #0 out any edges below a specified threshold
     
     return np.mean(clean_magnitude), clean_magnitude
 
@@ -99,8 +99,8 @@ x_optimal = ART_solver(A, b, num_iterations=iterations)
 x_corrected = np.flipud(x_optimal.reshape(n, n)).flatten()
 x_corrected = (x_corrected - np.min(x_corrected)) / (np.max(x_corrected) - np.min(x_corrected))
 temp_recon_img = x_corrected.reshape(n,n)
-clean_recon = cv.medianBlur(temp_recon_img.astype(np.float32), 3)
-s_recon, edge_map_recon = get_edge_sharpness(clean_recon, g_min, g_max) #recon threshold here
+clean_recon = cv.medianBlur(temp_recon_img.astype(np.float32), 3) #This blurs the pixel with its neighbours to eliminate any random noise
+s_recon, edge_map_recon = get_edge_sharpness(clean_recon, g_min, g_max) 
 preservation = (s_recon / s_true) * 100
 current_ssim = ssim(true_img, clean_recon, data_range=data_range)
 current_ssim *= 100
@@ -123,8 +123,7 @@ ax2.set_ylabel('Structural Similarity - SSIM (%)', color=color, fontweight='bold
 line2 = ax2.plot(x, ssim_scores, color=color, linewidth=2.5, label='SSIM')
 ax2.tick_params(axis='y', labelcolor=color)
 
-# Combine Legends
-lines = line1 + line2
+lines = line1 + line2 # Combine Legends
 labels = [l.get_label() for l in lines]
 plt.title('ART Beam Subdivision Analysis (Shepp-Logan)', fontsize=14, fontweight='bold')
 plt.tight_layout()
