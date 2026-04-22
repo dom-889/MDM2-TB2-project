@@ -27,10 +27,9 @@ def FBP_window_solver(A, b, num_iterations=10, lambda_val=1.0, window_strength=0
     for i in range(num_iterations):
         r = b - A @ x #Compute resdidual
 
-        #Apply ramp filter in frequency domain
-        r_fft = np.fft.fft(r,axis=0)
+        r_fft = np.fft.fft(r,axis=0) #Apply ramp filter in frequency domain
 
-        if i < window_iterations:
+        if i < window_iterations: #Applies for the first i iterations, then switches to unwindowed ramp filter
             r_fft_filtered = r_fft * ramp_window
             r_filtered = np.real(np.fft.ifft(r_fft_filtered))
         else:
@@ -38,7 +37,7 @@ def FBP_window_solver(A, b, num_iterations=10, lambda_val=1.0, window_strength=0
             r_filtered = np.real(np.fft.ifft(r_fft_filtered))
 
         #Iterative step
-        delta_x = A.T @ r_filtered #Think this is the backprojection?
+        delta_x = A.T @ r_filtered 
         delta_x /= col_norm #Normalize by column sums
 
         x += lambda_val * delta_x #Update the image estimate
@@ -47,12 +46,11 @@ def FBP_window_solver(A, b, num_iterations=10, lambda_val=1.0, window_strength=0
 
     return x
 
-n = 64
+n = 64 #Size of image
 
 image_name = "shepp_logan_phantom.png"
 phantom = cv.imread(f"test_images/{image_name}", cv.IMREAD_GRAYSCALE)
 
-#phantom = cv.resize(phantom, (n, n), interpolation=cv.INTER_AREA)
 phantom = phantom.astype(np.float32)/255
 x_true = np.log10(np.clip(
     cv.cvtColor(cv.resize(cv.imread(f"test_images/{image_name}"), (n, n)), 
@@ -60,11 +58,10 @@ x_true = np.log10(np.clip(
 true_img = x_true.reshape(n, n)
 true_img = cv.resize(cv.imread(f"test_images/{image_name}", cv.IMREAD_GRAYSCALE), (n, n)).astype(np.float32)/255
 
-sigma = 0.
+sigma = 0 #STD dev of noise, Noiseless = 0
 noisy_image = phantom + np.random.normal(0, sigma, phantom.shape)
 noisy_image = np.clip(noisy_image, 0, 1)
 cv.imwrite("test_images/temp_noisy.png", (noisy_image * 255).astype(np.uint8))
-#noisy_image = cv.resize(noisy_image, (n, n), interpolation=cv.INTER_AREA)
 
 #ART high param reference imnage
 fan_list_ref = fan_setup(np.pi/4, 128)
@@ -76,7 +73,7 @@ A_ref, b_ref, _ = ring_thing(fan_list_ref,
                             resize=n)
 x_ref = ART_solver(A_ref, b_ref, num_iterations=35)
 x_ref_corrected = np.flipud(x_ref.reshape(n, n)).flatten()
-x_ref_norm = (x_ref_corrected - np.min(x_ref_corrected)) / (np.max(x_ref_corrected) - np.min(x_ref_corrected))
+x_ref_norm = (x_ref_corrected - np.min(x_ref_corrected)) / (np.max(x_ref_corrected) - np.min(x_ref_corrected)) #Normalise from 0 to 1
 true_img = x_ref_norm.reshape(n, n)
 
 g_min = np.min(true_img)
@@ -102,16 +99,11 @@ s_true, clean_edges = get_edge_sharpness(true_img, g_min, g_max, threshold_ratio
 
 iterations = 25
 
-w_iterations = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
-w_iterations = np.linspace(0, iterations, iterations+1, dtype=int)
-#w_iterations = [0, 5, 10, 15, 20, 25]
-#w_iterations = [0, 5, 10, 15, 20]
+w_iterations = np.linspace(0, iterations, iterations+1, dtype=int) #Test across [0, max iterations]
 
 w_strengths = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-#w_strengths = [0.1, 0.5, 1.0]
-#w_strengths = [0.2, 0.4, 0.6, 0.8, 1.0]
 
-ssims = np.zeros((len(w_iterations), len(w_strengths)))
+ssims = np.zeros((len(w_iterations), len(w_strengths)))          #Create empty arrays to store each result
 preservations = np.zeros((len(w_iterations), len(w_strengths)))
 
 
@@ -133,22 +125,19 @@ best_preservation_params = None
 for i, w_iter in enumerate(w_iterations):
     for j, w_str in enumerate(w_strengths):
         x_recon = FBP_window_solver(A, b, num_iterations=iterations, lambda_val=1, window_strength=w_str, window_iterations=w_iter)
-        x_corrected = np.flipud(x_recon.reshape(n, n))
+        x_corrected = np.flipud(x_recon.reshape(n, n)) #FLip upside down to correct for ring application handles data
         x_norm = (x_corrected - np.min(x_corrected)) / (np.max(x_corrected) - np.min(x_corrected))
         temp_recon_image = x_norm.reshape(n, n)
 
-        #temp_uint8 = (temp_recon_image*255).astype(np.uint8)
-        #clean_recon = skimage.filters.median(temp_uint8, square(3)).astype(np.float32)/255
-
         clean_recon = cv.medianBlur(temp_recon_image.astype(np.float32), 3)
         s_recon, edge_map = get_edge_sharpness(clean_recon, g_min, g_max)  #Change threshold here
-        preservation = (s_recon / s_true) * 100
+        preservation = (s_recon / s_true) * 100 #Convert to percent
         preservations[i, j] = preservation
         current_ssim = ssim(true_img, clean_recon, data_range=data_range)
-        current_ssim *= 100
+        current_ssim *= 100 #Convert to percent
         ssims[i, j] = current_ssim
 
-        if best_ssim is None or current_ssim > best_ssim:
+        if best_ssim is None or current_ssim > best_ssim:  #Store the best configuration for both metrics
             best_ssim = current_ssim
             best_ssim_params = (w_iter, w_str)
             ssim_edge_map = edge_map
@@ -178,26 +167,16 @@ plt.figure(figsize=(9,4))
 plt.subplot(1,2,1)
 plt.imshow(true_img, cmap='gray')
 plt.title('Original Reference Phantom')
-#plt.text(0.5, -0.1, f'Noise Std Dev: {sigma}', ha='center', va='center', transform=plt.gca().transAxes)
 plt.axis('off')
 
 plt.subplot(1,2,2)
 plt.imshow(x_ssim_optimal, cmap='gray')
 plt.title(f'Optimal Reconstruction\nWindow Iterations {best_ssim_params[0]} | Strength: {best_ssim_params[1]}\nSSIM: {best_ssim:.2f}%  |  Edge Preservation: {best_preservation:.2f}%')
-#plt.xlabel(f'RMSE: {best_rmse:.4f}, Window Iterations: {optimal_w_iter}, Window Strength: {optimal_w_str}')
-#plt.text(0.5, -0.1, f'Window Iterations: {best_ssim_params[0]}\n Window Strength: {best_ssim_params[1]}',
-        #ha='center', va='center', transform=plt.gca().transAxes)
 plt.axis('off')
-'''
-plt.subplot(1,3,3)
-plt.imshow(x_preservation_optimal, cmap='gray')
-plt.title(f'FBP Reconstruction 2\nOptimal Preservation: {best_preservation:.2f}%')
-plt.text(0.5, -0.1, f'Window Iterations: {best_preservation_params[0]}\n Window Strength: {best_preservation_params[1]}', 
-        ha='center', va='center', transform=plt.gca().transAxes)
-plt.axis('off')
-'''
+
 plt.tight_layout()
 plt.savefig('Shepp_Logan_results_final/FBP_images.png', dpi=300)
+
 
 plt.figure(figsize=(9, 3))
 plt.subplot(1,2,1)
@@ -217,6 +196,7 @@ plt.colorbar(label='Edge Preservation (%)')
 plt.tight_layout()
 plt.savefig('Shepp_Logan_results_final/FBP_param_sweeps.png', dpi=300)
 
+
 plt.figure(figsize =(9,4))
 plt.subplot(1,2,1)
 plt.imshow(clean_edges, cmap='hot')
@@ -226,17 +206,8 @@ plt.axis('off')
 plt.subplot(1,2,2)
 plt.imshow(ssim_edge_map, cmap='hot', vmax=np.max(clean_edges), vmin=0)
 plt.title("Optimal Reconstruction Edge Map")
-#plt.text(0.5, -0.1, f'SSIM: {best_ssim:.2f}%\n Window Iterations: {best_ssim_params[0]}\n Window Strength: {best_ssim_params[1]}',
-        #ha='center', va='center', transform=plt.gca().transAxes)
 plt.axis('off')
-'''
-plt.subplot(1,3,3)
-plt.imshow(preservation_edge_map, cmap='hot', vmax=np.max(clean_edges), vmin=0)
-plt.title("Preservation Edge Map")
-plt.text(0.5, -0.1, f'Preservation: {best_preservation:.2f}%\n Window Iterations: {best_preservation_params[0]}\n Window Strength: {best_preservation_params[1]}', 
-         ha='center', va='center', transform=plt.gca().transAxes)
-plt.axis('off')
-'''
+
 plt.tight_layout()
 plt.savefig('Shepp_Logan_results_final/FBP_edge_heat_maps.png', dpi=300)
 

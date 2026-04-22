@@ -53,9 +53,7 @@ s_true, edge_map_true = get_edge_sharpness(true_img, g_min, g_max, threshold_rat
 
 ring_sub = 180
 beam_size = 64
-#beam_subdivisions = [16, 32, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 78, 91, 104, 110, 119, 128]
-beam_subdivisions = np.linspace(10, 150, 50, dtype=int)
-
+beam_subdivisions = np.linspace(10, 150, 50, dtype=int) #Test across big range of subdivisions, with other default params
 fan_angle = np.pi/4
 iterations = 20
 
@@ -78,10 +76,7 @@ for beam_sub in beam_subdivisions:
     x_corrected = (x_corrected - np.min(x_corrected)) / (np.max(x_corrected) - np.min(x_corrected))
     
     temp_recon_img = x_corrected.reshape(n,n)
-    '''
-    temp_uint8 = (temp_recon_img*255).astype(np.uint8)
-    clean_recon = skimage.filters.median(temp_uint8, np.square(3)).astype(np.float32)/255
-    '''
+
     clean_recon = cv.medianBlur(temp_recon_img.astype(np.float32), 3)
     s_recon, _ = get_edge_sharpness(clean_recon, g_min, g_max)#recon threshold here
     preservation = (s_recon / s_true) * 100
@@ -131,7 +126,6 @@ ax2.tick_params(axis='y', labelcolor=color)
 # Combine Legends
 lines = line1 + line2
 labels = [l.get_label() for l in lines]
-#ax1.legend(lines, labels, loc='lower right', frameon=True, shadow=True, borderpad=1)
 plt.title('ART Beam Subdivision Analysis (Shepp-Logan)', fontsize=14, fontweight='bold')
 plt.tight_layout()
 plt.savefig('Shepp_Logan_results_final/ART_param_sweep.png', dpi=150)
@@ -144,7 +138,6 @@ plt.axis('off')
 plt.subplot(1,2,2)
 plt.imshow(temp_recon_img, cmap='gray')
 plt.title(f'Optimal Reconstruction\n{optimal_sub} Beam Subdivisions\nSSIM: {current_ssim:.2f}%  |  Edge Preservation: {preservation:.2f}%')
-#plt.text(0.5, -0.1, f'SSIM: {current_ssim:.2f}%\nEdge Preservation: {preservation:.2f}%', ha='center', va='center', transform=plt.gca().transAxes, fontsize=10)
 plt.axis('off')
 plt.tight_layout()
 plt.savefig('Shepp_Logan_results_final/ART_images.png', dpi=150)
