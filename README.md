@@ -17,13 +17,13 @@ Install dependencies using lib_setup.py
 ## Repository Structure
 
 - fixed_model.py        # Fan-beam setup, forward projection, matrix A construction, ART solver
-- FBP_SSIM.py           # Iterative Filtered Backprojection with ramp filter and Hann window
+- FBP_SSIM.py           # Iterative Filtered Backprojection with ramp filter and Hann window 1
 - fbp_code.py           # Supporting FBP utilities
 - Noise.py              # Gaussian noise sweep with SSIM and Sharpness evaluation
 - noise_analysis.py     # Extended noise analysis scripts
 - Rays.py               # Ray density parameter sweep and optimal threshold identification
 - Noiseless.py          # Master graph generation for noiseless parameter analysis
-- ARTparam_ssim.py      # Beam subdivision sweep on the Shepp-Logan phantom
+- ARTparam_ssim.py      # Beam subdivision sweep on the Shepp-Logan phantom 1
 - fan_angle_analysis.py # Fan angle sensitivity analysis
 - Shepp_import.py       # Shepp-Logan phantom import utility from skimage
 
