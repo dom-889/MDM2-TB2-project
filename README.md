@@ -12,11 +12,7 @@ dual metrics: Structural Similarity Index (SSIM) and Sobel Sharpness Preservatio
 
 ## Requirements
 
-Install dependencies with: 
-numpy
-scipy
-matplotlib
-scikit-image
+Install dependencies using lib_setup.py
 
 ## Repository Structure
 
