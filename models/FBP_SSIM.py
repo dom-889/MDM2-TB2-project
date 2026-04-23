@@ -50,20 +50,20 @@ def FBP_window_solver(A, b, num_iterations=10, lambda_val=1.0, window_strength=0
 n = 64
 
 image_name = "shepp_logan_phantom.png"
-phantom = cv.imread(f"test_images/{image_name}", cv.IMREAD_GRAYSCALE)
+phantom = cv.imread(f"images/test_images/{image_name}", cv.IMREAD_GRAYSCALE)
 
 #phantom = cv.resize(phantom, (n, n), interpolation=cv.INTER_AREA)
 phantom = phantom.astype(np.float32)/255
 x_true = np.log10(np.clip(
-    cv.cvtColor(cv.resize(cv.imread(f"test_images/{image_name}"), (n, n)), 
+    cv.cvtColor(cv.resize(cv.imread(f"images/test_images/{image_name}"), (n, n)), 
                 cv.COLOR_BGR2GRAY).astype(float) / 255, 1e-6, None)).flatten()
 true_img = x_true.reshape(n, n)
-true_img = cv.resize(cv.imread(f"test_images/{image_name}", cv.IMREAD_GRAYSCALE), (n, n)).astype(np.float32)/255
+true_img = cv.resize(cv.imread(f"images/test_images/{image_name}", cv.IMREAD_GRAYSCALE), (n, n)).astype(np.float32)/255
 
 sigma = 0.
 noisy_image = phantom + np.random.normal(0, sigma, phantom.shape)
 noisy_image = np.clip(noisy_image, 0, 1)
-cv.imwrite("test_images/temp_noisy.png", (noisy_image * 255).astype(np.uint8))
+cv.imwrite("images/test_images/temp/temp_noisy.png", (noisy_image * 255).astype(np.uint8))
 #noisy_image = cv.resize(noisy_image, (n, n), interpolation=cv.INTER_AREA)
 
 #ART high param reference imnage
@@ -121,7 +121,7 @@ A, b, img = ring_thing(fan_list,
                            ring_subdivisions=360,
                            beam_subdivisions=100,
                            aperture=1,
-                           image_string="temp_noisy.png",
+                           image_string="temp/temp_noisy.png",
                            resize=n)
 
 best_ssim = None
@@ -197,7 +197,7 @@ plt.text(0.5, -0.1, f'Window Iterations: {best_preservation_params[0]}\n Window 
 plt.axis('off')
 '''
 plt.tight_layout()
-plt.savefig('Shepp_Logan_results_final/FBP_images.png', dpi=300)
+plt.savefig('images/results/shepp_logan/FBP_images.png', dpi=300)
 
 plt.figure(figsize=(9, 3))
 plt.subplot(1,2,1)
@@ -215,7 +215,7 @@ plt.ylabel('Window Strength', fontsize=12)
 plt.colorbar(label='Edge Preservation (%)')
 
 plt.tight_layout()
-plt.savefig('Shepp_Logan_results_final/FBP_param_sweeps.png', dpi=300)
+plt.savefig('images/results/shepp_logan/FBP_param_sweeps.png', dpi=300)
 
 plt.figure(figsize =(9,4))
 plt.subplot(1,2,1)
@@ -238,7 +238,7 @@ plt.text(0.5, -0.1, f'Preservation: {best_preservation:.2f}%\n Window Iterations
 plt.axis('off')
 '''
 plt.tight_layout()
-plt.savefig('Shepp_Logan_results_final/FBP_edge_heat_maps.png', dpi=300)
+plt.savefig('images/results/shepp_logan/FBP_edge_heat_maps.png', dpi=300)
 
 plt.show()
 print(f'Optimal parameters: Window Iterations = {best_ssim_params[0]}, Window Strength = {best_ssim_params[1]}, SSIM = {best_ssim:.4f}')

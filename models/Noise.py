@@ -118,7 +118,7 @@ for ax in axes.flatten():
     ax.axis('off')
 
 plt.tight_layout()
-plt.savefig("project/Images/noise_visual_comparison.png", dpi=150)
+plt.savefig("images/results/noise_visual_comparison.png", dpi=150)
 plt.show(block=False)
 plt.pause(2)
 
@@ -145,5 +145,5 @@ labels = [l.get_label() for l in lines]
 ax1.legend(lines, labels, loc='lower left')
 plt.title("Quantitative Impact of Noise on ART Reconstruction", fontsize=14, fontweight='bold')
 plt.tight_layout()
-plt.savefig("project/Images/noise_graph_analysis.png", dpi=150)
+plt.savefig("images/results/noise_graph_analysis.png", dpi=150)
 plt.show()

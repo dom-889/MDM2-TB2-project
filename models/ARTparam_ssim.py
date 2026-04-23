@@ -134,7 +134,7 @@ labels = [l.get_label() for l in lines]
 #ax1.legend(lines, labels, loc='lower right', frameon=True, shadow=True, borderpad=1)
 plt.title('ART Beam Subdivision Analysis (Shepp-Logan)', fontsize=14, fontweight='bold')
 plt.tight_layout()
-plt.savefig('Shepp_Logan_results_final/ART_param_sweep.png', dpi=150)
+plt.savefig('images/results/shepp_logan/ART_param_sweep.png', dpi=150)
 
 plt.figure(figsize=(8,4))
 plt.subplot(1,2,1)
@@ -147,7 +147,7 @@ plt.title(f'Optimal Reconstruction\n{optimal_sub} Beam Subdivisions\nSSIM: {curr
 #plt.text(0.5, -0.1, f'SSIM: {current_ssim:.2f}%\nEdge Preservation: {preservation:.2f}%', ha='center', va='center', transform=plt.gca().transAxes, fontsize=10)
 plt.axis('off')
 plt.tight_layout()
-plt.savefig('Shepp_Logan_results_final/ART_images.png', dpi=150)
+plt.savefig('images/results/shepp_logan/ART_images.png', dpi=150)
 
 plt.figure()
 plt.subplot(1,2,1)
@@ -159,7 +159,7 @@ plt.imshow(edge_map_recon, cmap='hot', vmax=np.max(edge_map_true), vmin=0)
 plt.title('Reconstructed Edge Map')
 plt.axis('off')
 plt.tight_layout()
-plt.savefig('Shepp_Logan_results_final/ART_edge_heat_maps.png', dpi=150)
+plt.savefig('images/results/shepp_logan/ART_edge_heat_maps.png', dpi=150)
 
 plt.show()
 print(f'g_min: {g_min}, g_max: {g_max}, s_true: {s_true}, s_recon: {s_recon}')

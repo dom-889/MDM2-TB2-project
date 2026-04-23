@@ -90,7 +90,7 @@ axes[2].set_title("Convolutional Edge Map\n(Sobel Gradient)")
 axes[2].axis('off')
 
 plt.tight_layout()
-plt.savefig("project/Images/diagnostic_reconstruction.png", dpi=150)
+plt.savefig("images/results/diagnostic_reconstruction.png", dpi=150)
 plt.show(block=False) # Allows the script to continue to the loop without freezing
 plt.pause(2)          # Pauses briefly to render the window
 
@@ -151,6 +151,6 @@ labels = [l.get_label() for l in lines]
 ax1.legend(lines, labels, loc='upper left', fontsize=10)
 plt.title("ART Iteration Analysis: Sharpness vs. SSIM", fontsize=14, fontweight='bold')
 plt.tight_layout()
-plt.savefig("project/Images/iteration_analysis.png", dpi=150)
+plt.savefig("images/results/iteration_analysis.png", dpi=150)
 plt.show()
 

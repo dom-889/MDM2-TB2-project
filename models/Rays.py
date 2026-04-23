@@ -122,5 +122,5 @@ ax1.legend(lines, labels, loc='lower right', frameon=True, shadow=True, borderpa
 # Format & Save
 plt.title("Reconstruction Quality vs. Angular Sampling", fontsize=14, fontweight='bold')
 fig.tight_layout() 
-plt.savefig("project/Images/angle_analysis.png", dpi=150)
+plt.savefig("images/results/angle_analysis.png", dpi=150)
 plt.show()

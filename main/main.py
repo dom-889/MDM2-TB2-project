@@ -21,8 +21,8 @@ def main():
             selected = pick(options, title="Choose an image to reconstruct")
             print(f'You selected: {selected[0]}, reconstructing now...')
             fan_sd, ring_sd = optimise_function_inputs(selected[0])
-            fan_ls = fan_setup(np.pi/4, fan_sd)
-            ring_thing(fan_list=fan_ls, ring_subdivisions=ring_sd, beam_subdivisions=100, aperture=1, image_string=selected[0])
+            fan_ls = fan_setup(np.pi/4, 50)
+            ring_thing(fan_list=fan_ls, ring_subdivisions=100, beam_subdivisions=100, aperture=1, image_string=selected[0])
             break
 
         else:

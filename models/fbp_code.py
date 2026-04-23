@@ -170,7 +170,7 @@ if __name__ == "__main__":
  
     fig1.suptitle("ART vs FBP Reconstruction Comparison")
     fig1.tight_layout()
-    fig1.savefig("project/Images/ART_vs_FBP_reconstructions.png", dpi=150, bbox_inches='tight')
+    fig1.savefig("images/results/ART_vs_FBP_reconstructions.png", dpi=150, bbox_inches='tight')
     plt.show()
  
     # Figure 2: difference map with colorbar
@@ -186,6 +186,6 @@ if __name__ == "__main__":
     cbar.ax.tick_params(labelsize=9)
  
     fig2.tight_layout()
-    fig2.savefig("project/Images/ART_vs_FBP_difference.png", dpi=150, bbox_inches='tight')
+    fig2.savefig("images/results/ART_vs_FBP_difference.png", dpi=150, bbox_inches='tight')
     plt.show()
  
