@@ -1,82 +1,52 @@
-import numpy as np
-import matplotlib.pyplot as plt
-from fixed_model import fan_setup, ring_thing, ART_solver
+# Test range: from narrow 15° to very wide 120° (in radians)
+angle_tests_deg = [15, 30, 45, 60, 90, 120]
+angle_tests_rad = [np.radians(a) for a in angle_tests_deg]
 
+sharpness_angle = []
+ssim_angle = []
 
-IMAGE = "bone_phantom.png"
-RESIZE = 64
-DEFAULT_RING = 180
-DEFAULT_BEAMS = 64
-DEFAULT_ITERATIONS = 20
+for angle in angle_tests_rad:
+    print(f"Testing Fan Angle: {np.degrees(angle):.0f} degrees...")
+    
+    # 1. Setup geometry with fixed 96 beams and 90 ring subdivisions
+    current_fan = fan_setup(angle, no_beams=96)
+    
+    # 2. Forward projection
+    A_ang, b_ang, _ = ring_thing(current_fan, 
+                                 ring_subdivisions=90, 
+                                 beam_subdivisions=100, 
+                                 aperture=1, 
+                                 image_string="phantom.png", 
+                                 resize=N)
+    
+    # 3. Reconstruction & Metrics (20 iterations for stability)
+    x_rec = ART_solver(A_ang, b_ang, num_iterations=20)
+    clean_rec = cv.medianBlur(x_rec.reshape(N,N).astype(np.float32), 3)
+    
+    s_rec, _ = get_edge_sharpness(clean_rec, g_min, g_max)
+    sharpness_angle.append((s_rec / s_true) * 100)
+    ssim_angle.append(ssim(true_img, clean_rec, data_range=data_range) * 100)
 
+# ---------------------------------------------------------
+# 8. PLOT FOR FAN ANGLE
+# ---------------------------------------------------------
+plt.rcParams.update({'font.size': 16})
+fig, ax1 = plt.subplots(figsize=(7, 5))
 
-if __name__ == "__main__":
+color = 'tab:red'
+ax1.set_xlabel('Fan Angle (Degrees)', fontweight='bold', fontsize=18)
+ax1.set_ylabel('Sharpness (%)', color=color, fontweight='bold', fontsize=18)
+ax1.plot(angle_tests_deg, sharpness_angle, marker='o', color=color, linewidth=3)
+ax1.tick_params(axis='y', labelcolor=color)
+ax1.grid(True, linestyle='--', alpha=0.6)
 
-    fan_angles = [np.pi/8, np.pi/6, np.pi/4, np.pi/3, np.pi/2.5, np.pi/2]
-    fan_labels = ['π/8', 'π/6', 'π/4', 'π/3', '2π/5', 'π/2']
+ax2 = ax1.twinx()
+color = 'tab:blue'
+ax2.set_ylabel('SSIM (%)', color=color, fontweight='bold', fontsize=18)
+ax2.plot(angle_tests_deg, ssim_angle, marker='s', color=color, linewidth=3)
+ax2.tick_params(axis='y', labelcolor=color)
 
-    # --- VISUAL COMPARISON ---
-    fig, axes = plt.subplots(1, len(fan_angles) + 1,
-                             figsize=(3 * (len(fan_angles) + 1), 3.5))
-
-    # get original image
-    fan_list = fan_setup(np.pi/4, no_beams=DEFAULT_BEAMS)
-    _, _, img = ring_thing(fan_list, ring_subdivisions=DEFAULT_RING,
-                           beam_subdivisions=100, aperture=1,
-                           image_string=IMAGE, resize=RESIZE)
-
-    axes[0].imshow(np.flipud(img[:, :, 0]), cmap='gray')
-    axes[0].set_title('Original')
-    axes[0].axis('off')
-
-    reconstructions = {}
-    for idx, (fa, fl) in enumerate(zip(fan_angles, fan_labels)):
-        print(f"\nFan angle = {fl} ({np.degrees(fa):.1f}°)")
-        fan_list = fan_setup(fa, no_beams=DEFAULT_BEAMS)
-        A, b, _ = ring_thing(fan_list, ring_subdivisions=DEFAULT_RING,
-                              beam_subdivisions=100, aperture=1,
-                              image_string=IMAGE, resize=RESIZE)
-        x = ART_solver(A, b, num_iterations=DEFAULT_ITERATIONS)
-        reconstructions[fl] = x
-        axes[idx + 1].imshow(np.flipud(x.reshape(RESIZE, RESIZE)), cmap='gray')
-        axes[idx + 1].set_title(f'Fan = {fl}\n({np.degrees(fa):.0f}°)')
-        axes[idx + 1].axis('off')
-
-    plt.suptitle(f'Effect of Fan Angle (ring={DEFAULT_RING}, beams={DEFAULT_BEAMS})', fontsize=13)
-    plt.tight_layout()
-    plt.savefig('images/results/fan_angle_visual.png', dpi=150)
-    print("\nSaved fan_angle_visual.png")
-
-    # --- RMSE GRAPH ---
-    # use ground truth image for comparison
-    ground_truth = img[:, :, 0].flatten().astype(float) / 255.0
-
-    # also compare each against the π/4 reconstruction as a relative reference
-    x_ref = reconstructions['π/4']
-
-    fan_degrees = []
-    rmse_vs_ref = []
-    rmse_vs_gt = []
-
-    for fa, fl in zip(fan_angles, fan_labels):
-        x = reconstructions[fl]
-        r_ref = np.sqrt(np.mean((x - x_ref) ** 2))
-        r_gt = np.sqrt(np.mean((x - ground_truth) ** 2))
-        rmse_vs_ref.append(r_ref)
-        rmse_vs_gt.append(r_gt)
-        fan_degrees.append(np.degrees(fa))
-        print(f"Fan={fl} ({np.degrees(fa):.1f}°), RMSE vs π/4={r_ref:.5f}, RMSE vs GT={r_gt:.5f}")
-
-    fig, ax = plt.subplots(figsize=(8, 5))
-    ax.plot(fan_degrees, rmse_vs_gt, 'o-', color='steelblue', label='RMSE vs ground truth')
-    ax.plot(fan_degrees, rmse_vs_ref, 's-', color='indianred', label='RMSE vs π/4 reference')
-    ax.set_xlabel('Fan angle (degrees)', fontsize=12)
-    ax.set_ylabel('RMSE', fontsize=12)
-    ax.set_title('Reconstruction Quality vs Fan Angle', fontsize=13)
-    ax.legend()
-    ax.grid(True, linestyle='--', alpha=0.5)
-    plt.tight_layout()
-    plt.savefig('images/results/fan_angle_rmse.png', dpi=150)
-    print("Saved fan_angle_rmse.png")
-
-    plt.show() 
+plt.title("Quality vs. Fan Aperture", fontsize=20, fontweight='bold', pad=15)
+fig.tight_layout()
+plt.savefig("project/Images/fan_angle_analysis.png", dpi=300)
+plt.show()
