@@ -44,7 +44,7 @@ if __name__ == "__main__":
 
     plt.suptitle(f'Effect of Fan Angle (ring={DEFAULT_RING}, beams={DEFAULT_BEAMS})', fontsize=13)
     plt.tight_layout()
-    plt.savefig('fan_angle_visual.png', dpi=150)
+    plt.savefig('images/results/fan_angle_visual.png', dpi=150)
     print("\nSaved fan_angle_visual.png")
 
     # --- RMSE GRAPH ---
@@ -76,7 +76,7 @@ if __name__ == "__main__":
     ax.legend()
     ax.grid(True, linestyle='--', alpha=0.5)
     plt.tight_layout()
-    plt.savefig('fan_angle_rmse.png', dpi=150)
+    plt.savefig('images/results/fan_angle_rmse.png', dpi=150)
     print("Saved fan_angle_rmse.png")
 
     plt.show() 
