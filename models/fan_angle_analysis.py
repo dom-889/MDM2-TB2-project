@@ -1,3 +1,17 @@
+
+import numpy as np
+import cv2 as cv
+import matplotlib.pyplot as plt
+import os
+import sys
+from skimage.metrics import structural_similarity as ssim
+
+# Ensure local imports work
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from fixed_model import fan_setup, ring_thing, ART_solver
+
+
+
 # Test range: from narrow 15° to very wide 120° (in radians)
 angle_tests_deg = [15, 30, 45, 60, 90, 120]
 angle_tests_rad = [np.radians(a) for a in angle_tests_deg]
